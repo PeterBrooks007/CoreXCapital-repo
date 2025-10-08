@@ -21,7 +21,7 @@ const sendEmail = async (subject, send_to, template, reply_to, cc) => {
       name: "corexcapital Platform",
       link: "https://corexcapital.net/",
       // Optional product logo
-      logo: 'https://corexcapital.net/logo.png',
+      logo: 'https://res.cloudinary.com/dth4hjk3c/image/upload/v1759909596/logo_n8emjb.png',
        // Custom logo height
       logoHeight: '70px'
     },

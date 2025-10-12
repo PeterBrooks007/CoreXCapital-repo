@@ -306,7 +306,8 @@ const verifyOTP = asyncHandler(async (req, res) => {
 
 //kycSetup
 const kycSetup = asyncHandler(async (req, res) => {
-  // console.log(req.body);
+  
+  console.log(req.body);
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -411,7 +412,7 @@ const kycSetup = asyncHandler(async (req, res) => {
         async (error, result) => {
           if (error) {
             console.log("cloudinary error1", error);
-            return res.status(500).json({ error: "Image upload failed" });
+            return res.status(500).json({ message: err.message || "Image upload failed"  });
           }
 
           if (user) {

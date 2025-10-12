@@ -377,7 +377,7 @@ const deleteDepositRequest = asyncHandler(async (req, res) => {
 
   if (deleteDepositrequest && depositRequest.depositProof) {
     const publicId = getPublicIdFromUrl(depositRequest.depositProof);
-    await cloudinary.uploader.destroy(publicId); // Delete the deposit request image
+    // await cloudinary.uploader.destroy(publicId); // Delete the deposit request image
   }
 
   const AllPendingDepositRequest = await Deposit.find({ status: "PENDING" })

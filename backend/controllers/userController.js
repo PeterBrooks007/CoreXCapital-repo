@@ -360,7 +360,7 @@ const kycSetup = asyncHandler(async (req, res) => {
         publicId.trim().length > 0
       ) {
         try {
-          await cloudinary.uploader.destroy(publicId); // Delete the old image
+          // await cloudinary.uploader.destroy(publicId); // Delete the old image
           console.log(`Successfully deleted old Cloudinary photo: ${publicId}`);
         } catch (deletionError) {
           console.warn(
@@ -561,7 +561,7 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
         const currenctFrontId = getPublicIdFromUrl(CurrenctFrontId);
         if (currenctFrontId && currenctFrontId.trim().length > 0) {
           try {
-            await cloudinary.uploader.destroy(currenctFrontId); // Delete the old id front
+            // await cloudinary.uploader.destroy(currenctFrontId); // Delete the old id front
             console.log(
               `Successfully deleted old front ID: ${currenctFrontId}`
             );
@@ -583,7 +583,7 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
 
         if (currenctBackId && currenctBackId.trim().length > 0) {
           try {
-            await cloudinary.uploader.destroy(currenctBackId); // Delete the old id back
+            // await cloudinary.uploader.destroy(currenctBackId); // Delete the old id back
             console.log(`Successfully deleted old back ID: ${currenctBackId}`);
           } catch (error) {
             console.warn(
@@ -846,7 +846,7 @@ const updatePhoto = asyncHandler(async (req, res) => {
     // If the current photo exists, delete it from Cloudinary
     if (currentPhotoUrl) {
       const publicId = getPublicIdFromUrl(currentPhotoUrl);
-      await cloudinary.uploader.destroy(publicId); // Delete the old image
+      // await cloudinary.uploader.destroy(publicId); // Delete the old image
     }
 
     // Get the MIME type of the uploaded file
@@ -1662,7 +1662,7 @@ const adminDeleteAssetWalletFromUser = asyncHandler(async (req, res) => {
   // Delete wallet image from Cloudinary, if it exists
   if (walletToDelete.image) {
     const iconPublicId = getPublicIdFromUrl(walletToDelete.image);
-    await cloudinary.uploader.destroy(iconPublicId); // Delete the wallet image
+    // await cloudinary.uploader.destroy(iconPublicId); // Delete the wallet image
   }
 
   res.status(200).json({
@@ -2073,7 +2073,7 @@ const updateCustomizeEmailLogo = asyncHandler(async (req, res) => {
     // If the current photo exists, delete it from Cloudinary
     if (currentPhotoUrl) {
       const publicId = getPublicIdFromUrl(currentPhotoUrl);
-      await cloudinary.uploader.destroy(publicId); // Delete the old image
+      // await cloudinary.uploader.destroy(publicId); // Delete the old image
     }
 
     // Get the MIME type of the uploaded file
@@ -2365,7 +2365,7 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
     // Delete the user's photo from Cloudinary, if it exists
     if (user.photo) {
       const userPhotoPublicId = getPublicIdFromUrl(user.photo);
-      await cloudinary.uploader.destroy(userPhotoPublicId);
+      // await cloudinary.uploader.destroy(userPhotoPublicId);
     }
 
     // Delete the user's idVerificationPhoto (front and back) from Cloudinary, if they exist
@@ -2373,11 +2373,11 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
       const userIdVeriFront = getPublicIdFromUrl(
         user.idVerificationPhoto.front
       );
-      await cloudinary.uploader.destroy(userIdVeriFront);
+      // await cloudinary.uploader.destroy(userIdVeriFront);
     }
     if (user.idVerificationPhoto?.back) {
       const userIdVeriBack = getPublicIdFromUrl(user.idVerificationPhoto.back);
-      await cloudinary.uploader.destroy(userIdVeriBack);
+      // await cloudinary.uploader.destroy(userIdVeriBack);
     }
 
     // Delete all deposit & depositProofs associated with the user and their database records

@@ -306,10 +306,11 @@ const verifyOTP = asyncHandler(async (req, res) => {
 
 //kycSetup
 const kycSetup = asyncHandler(async (req, res) => {
-  // console.log(req.body); // Keep this for debugging request data
+  // console.log(req.body);
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // console.log(errors.array()); // Log all errors for debugging
     res.status(400);
     throw new Error(errors.array()[0].msg);
   }
@@ -329,174 +330,135 @@ const kycSetup = asyncHandler(async (req, res) => {
     throw new Error("No file uploaded");
   }
 
-  // Check file type (already safe)
+  // Check if the uploaded file is an image
   const validMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
-  const uploadedMimeType = file.mimetype.toLowerCase();
+  const uploadedMimeType = file.mimetype.toLowerCase(); // Convert to lowercase for case-insensitive comparison
   if (!validMimeTypes.includes(uploadedMimeType)) {
     res.status(400);
     throw new Error("Uploaded file is not a valid image");
   }
 
-  // Validate file size (already safe)
+  // Validate file size (5MB limit)
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
   if (file.size > maxSizeInBytes) {
     res.status(400);
     throw new Error("Image size exceeds 5MB limit");
   }
 
+  // Get the current photo URL
   const currentPhotoUrl = user.photo;
 
-  // --- 1. SAFE DELETION OF OLD PHOTO ---
-  if (currentPhotoUrl) {
-    const publicId = getPublicIdFromUrl(currentPhotoUrl);
+  try {
+    // If the current photo exists, delete it from Cloudinary
+    if (currentPhotoUrl) {
+      const publicId = getPublicIdFromUrl(currentPhotoUrl);
 
-    if (
-      publicId &&
-      typeof publicId === "string" &&
-      publicId.trim().length > 0
-    ) {
-      try {
-        await cloudinary.uploader.destroy(publicId);
-        console.log(`Successfully deleted old Cloudinary photo: ${publicId}`);
-      } catch (deletionError) {
-        // Log the API error but proceed, as the new image is the priority.
+      // ✅ FIX 1: Add a robust check for publicId
+      if (
+        publicId &&
+        typeof publicId === "string" &&
+        publicId.trim().length > 0
+      ) {
+        try {
+          await cloudinary.uploader.destroy(publicId); // Delete the old image
+          console.log(`Successfully deleted old Cloudinary photo: ${publicId}`);
+        } catch (deletionError) {
+          console.warn(
+            `Cloudinary deletion failed for ID ${publicId}. Likely already deleted or non-existent. Error: ${deletionError.message}`
+          );
+        }
+      } else {
+        // Log a warning if a photo URL existed but a publicId couldn't be extracted.
         console.warn(
-          `Cloudinary deletion failed for ID ${publicId}. Error: ${deletionError.message}`
+          `Photo URL existed (${currentPhotoUrl}), but no valid public ID could be extracted. Skipping Cloudinary deletion.`
         );
       }
-    } else {
-      console.warn(
-        `Skipping deletion: No valid public ID found for URL: ${currentPhotoUrl}`
-      );
     }
-  }
-  // ----------------------------------------
 
-  const mimeType = file.mimetype.toLowerCase();
-  let compressedImageBuffer;
+    // Get the MIME type of the uploaded file
+    // const mimeType = file.mimetype.toLowerCase();
 
-  try {
-    // --- 2. IMAGE COMPRESSION (WITH DEBUGGING) ---
+    // let compressedImageBuffer;
+
+    // Compress image based on MIME type
     // if (mimeType === "image/png") {
+    //   // Compress PNG and keep it as PNG
     //   compressedImageBuffer = await sharp(file.buffer)
-    //     .resize(500)
-    //     .png({ quality: 70, compressionLevel: 9 })
+    //     .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+    //     .png({ quality: 70, compressionLevel: 9 }) // PNG compression with quality 70
     //     .toBuffer();
     // } else if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+    //   // Compress JPEG/JPG and keep it as JPEG
     //   compressedImageBuffer = await sharp(file.buffer)
-    //     .resize(500)
-    //     .jpeg({ quality: 70 })
+    //     .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+    //     .jpeg({ quality: 70 }) // JPEG compression with quality 80
     //     .toBuffer();
     // } else {
+    //   // Compress any other file type and convert to JPEG
     //   compressedImageBuffer = await sharp(file.buffer)
-    //     .resize(500)
-    //     .jpeg({ quality: 70 })
+    //     .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+    //     .jpeg({ quality: 70 }) // Default to JPEG with quality 80
     //     .toBuffer();
     // }
-    // console.log(
-    //   `Image compressed successfully. Size: ${compressedImageBuffer.length} bytes`
-    // );
-    // ---------------------------------------------
 
-    // --- 3. CRITICAL FIX: PROMISE-BASED CLOUDINARY UPLOAD ---
+    // Specify the folder name where you want to upload the image
     const folderName = "profile_photos";
 
-    // const result = await new Promise((resolve, reject) => {
-    //   const uploadStream = cloudinary.uploader.upload_stream(
-    //     { resource_type: "auto", folder: folderName },
-    //     (error, result) => {
-    //       // Cloudinary returns an error
-    //       if (error) {
-    //         console.error("Cloudinary Upload Error (API Failure):", error);
-    //         return reject(new Error("Cloudinary API Upload Failed."));
-    //       }
-    //       resolve(result);
-    //     }
-    //   );
-    //   // Pipe the compressed buffer to the upload stream
-    //   uploadStream.end(compressedImageBuffer);
-    // });
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader
+      .upload_stream(
+        { resource_type: "auto", folder: folderName },
+        async (error, result) => {
+          if (error) {
+            return res.status(500).json({ error: "Image upload failed" });
+          }
 
-    let mediaUrl = "";
+          if (user) {
+            const {
+              address,
+              phone,
+              accounttype,
+              package,
+              currency,
+              photo,
+              pin,
+            } = user;
 
-    console.log(`going to try block now: ${file.size} bytes`);
+            const updateAddress = {
+              address: req.body.userData.address,
+              state: req.body.userData.state,
+              country: req.body.userData.country.label,
+              countryFlag: req.body.userData.country.code.toLowerCase(),
+            };
 
+            const updateCurrency = {
+              code: req.body.userData.currency.code,
+              flag: req.body.userData.currency.flag,
+            };
 
-    // Upload media to Cloudinary if provided
-    try {
+            user.address = updateAddress || address;
+            user.phone = req.body.userData.phone || phone;
+            user.accounttype = req.body.userData.accounttype || accounttype;
+            user.package = req.body.userData.package || package;
+            user.currency = updateCurrency || currency;
+            user.pin = req.body.userData.pin || pin;
+            user.photo = result.secure_url || photo;
 
-        // Log file size before Base64 conversion
-      console.log(`Attempting upload for file size: ${file.size} bytes`);
+            const updatedUser = await user.save({
+              new: true,
+              validateModifiedOnly: true,
+            });
 
-      // Convert buffer to base64
-      const base64Media = `data:${file.mimetype};base64,${file.buffer.toString(
-        "base64"
-      )}`;
-
-        // Log the size of the Base64 string (optional, but good for diagnostics)
-      console.log(`Base64 string size: ${base64Media.length} characters`);
-
-      const uploadResponse = await cloudinary.uploader.upload(base64Media, {
-        folder: folderName,
-        resource_type: "image",
-        transformation: [
-          { width: 1080, height: 1920, crop: "limit" },
-          { quality: "auto" },
-          { format: "auto" },
-        ],
-      });
-
-      mediaUrl = uploadResponse.secure_url;
-      console.log(`Cloudinary upload successful. URL: ${mediaUrl}`);
-    } catch (uploadError) {
-      console.error("Cloudinary upload error:", uploadError);
-      return res.status(400).json({ error: "Failed to upload media" });
-    }
-
-        console.log(`going to try block didnt work: ${file.size} bytes`);
-
-
-    // --- 4. DATABASE UPDATE (ONLY after successful upload) ---
-    const { address, phone, accounttype, package, currency, photo, pin } = user;
-
-    const updateAddress = {
-      address: req.body.userData.address,
-      state: req.body.userData.state,
-      country: req.body.userData.country.label,
-      countryFlag: req.body.userData.country.code.toLowerCase(),
-    };
-
-    const updateCurrency = {
-      code: req.body.userData.currency.code,
-      flag: req.body.userData.currency.flag,
-    };
-
-    user.address = updateAddress || address;
-    user.phone = req.body.userData.phone || phone;
-    user.accounttype = req.body.userData.accounttype || accounttype;
-    user.package = req.body.userData.package || package;
-    user.currency = updateCurrency || currency;
-    user.pin = req.body.userData.pin || pin;
-    user.photo = mediaUrl; // Use the URL from the successful upload
-
-    const updatedUser = await user.save({
-      new: true,
-      validateModifiedOnly: true,
-    });
-
-    return res.status(200).json(updatedUser);
+            return res.status(200).json(updatedUser);
+          } else {
+            res.status(404);
+            throw new Error("User not found");
+          }
+        }
+      )
+      .end(file.buffer); // Use the file buffer for the upload
   } catch (err) {
-    // This catches errors from:
-    // 1. sharp (Image compression failure)
-    // 2. The Cloudinary Promise rejection (Upload failure)
-    // 3. Mongoose (Database save failure)
-    console.error("KYC Processing Failed:", err.message);
-
-    // Throw the error to be caught by the outer asyncHandler middleware
-    res.status(500);
-    throw new Error(
-      err.message || "Failed to process KYC update due to server error."
-    );
+    res.status(500).json({ message: err.message || "Failed to upload image" });
   }
 });
 

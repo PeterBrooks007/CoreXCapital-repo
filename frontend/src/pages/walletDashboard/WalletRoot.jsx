@@ -31,28 +31,28 @@ const WalletRoot = () => {
   
 
     //socket connection
-  useEffect(() => {
-    if (isLoggedIn && user?._id) {
-      if (!socket) {
-        connectSocket(user?._id); // Ensure connectSocket initializes the socket
-      }
+  // useEffect(() => {
+  //   if (isLoggedIn && user?._id) {
+  //     if (!socket) {
+  //       connectSocket(user?._id); // Ensure connectSocket initializes the socket
+  //     }
 
-      if (socket) {
-        // Register socket ID with server
-        socket.emit("registerSocket", user?._id);
+  //     if (socket) {
+  //       // Register socket ID with server
+  //       socket.emit("registerSocket", user?._id);
 
-        // Notify server the user is online
-        socket.emit("userOnline", user?._id);
+  //       // Notify server the user is online
+  //       socket.emit("userOnline", user?._id);
 
        
 
-        // Cleanup event listeners only
-        return () => {
-          socket?.off("updateStatus");
-        };
-      }
-    }
-  }, [isLoggedIn, user?._id]);
+  //       // Cleanup event listeners only
+  //       return () => {
+  //         socket?.off("updateStatus");
+  //       };
+  //     }
+  //   }
+  // }, [isLoggedIn, user?._id]);
 
 
   useEffect(() => {

@@ -21,25 +21,25 @@ const walletTransactionsRoutes = require("./routes/walletTransactionsRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const User = require("./models/userModel");
 
-const { Server } = require("socket.io");
+// const { Server } = require("socket.io");
 
 // process.on("uncaughtException", (err) => {
 //   console.log(err);
 //   process.exit(1);
 // });
 
-const http = require("http");
+// const http = require("http");
 
 const app = express();
 
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5173", "https://corexcapital.net"],
-    methods: ["GET", "POST"],
-  },
-});
+// const io = new Server(server, {
+//   cors: {
+//     origin: ["http://localhost:5173", "https://corexcapital.net"],
+//     methods: ["GET", "POST"],
+//   },
+// });
 
 //MiddleWares
 app.use(cookieParser());
@@ -88,7 +88,7 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-    server.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
@@ -97,59 +97,59 @@ mongoose
     process.exit(1); // Ensure process stops on DB failure
   });
 
-//Socket.io starts
-io.on("connection", (socket) => {
-  // console.log("A user connected:", socket.id);
+// //Socket.io starts
+// io.on("connection", (socket) => {
+//   // console.log("A user connected:", socket.id);
 
-  socket.on("userOnline", async (userId) => {
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        {
-          isOnline: true,
-          lastSeen: null,
-        },
-        { new: true } // Return the updated document
-      );
+//   socket.on("userOnline", async (userId) => {
+//     try {
+//       const updatedUser = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           isOnline: true,
+//           lastSeen: null,
+//         },
+//         { new: true } // Return the updated document
+//       );
 
-      //send back all users and the single user to admin
-      const allUsers = await User.find().sort("-createdAt");
+//       //send back all users and the single user to admin
+//       const allUsers = await User.find().sort("-createdAt");
 
-      io.emit("updateStatus", { allUser: allUsers, singleUser: updatedUser });
-    } catch (error) {
-      console.error(
-        `Error updating user online status for user ${userId}:`,
-        error
-      );
-    }
-  });
+//       io.emit("updateStatus", { allUser: allUsers, singleUser: updatedUser });
+//     } catch (error) {
+//       console.error(
+//         `Error updating user online status for user ${userId}:`,
+//         error
+//       );
+//     }
+//   });
 
-  socket.on("disconnect", async () => {
-    // console.log("A user disconnected:", socket.id);
-    try {
-      const user = await User.findOneAndUpdate(
-        { socketId: socket.id },
-        { isOnline: false, lastSeen: new Date() },
-        { new: true } // Return the updated document
-      )
-      if (user) {
-        //send back all users to admin
-        const allUsers = await User.find().sort("-createdAt");
-        io.emit("updateStatus", { allUser: allUsers, singleUser: user });
-      }
-    } catch (error) {
-      console.error("Error handling disconnect:", error);
-    }
-  });
+//   socket.on("disconnect", async () => {
+//     // console.log("A user disconnected:", socket.id);
+//     try {
+//       const user = await User.findOneAndUpdate(
+//         { socketId: socket.id },
+//         { isOnline: false, lastSeen: new Date() },
+//         { new: true } // Return the updated document
+//       )
+//       if (user) {
+//         //send back all users to admin
+//         const allUsers = await User.find().sort("-createdAt");
+//         io.emit("updateStatus", { allUser: allUsers, singleUser: user });
+//       }
+//     } catch (error) {
+//       console.error("Error handling disconnect:", error);
+//     }
+//   });
 
-  socket.on("registerSocket", async (userId) => {
-    try {
-      await User.findByIdAndUpdate(userId, { socketId: socket.id });
-    } catch (error) {
-      console.error("Error registering socket:", error);
-    }
-  });
-});
+//   socket.on("registerSocket", async (userId) => {
+//     try {
+//       await User.findByIdAndUpdate(userId, { socketId: socket.id });
+//     } catch (error) {
+//       console.error("Error registering socket:", error);
+//     }
+//   });
+// });
 
 // process.on("unhandledRejection", (err) => {
 //   console.log(err);

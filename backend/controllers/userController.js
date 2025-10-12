@@ -421,10 +421,17 @@ const kycSetup = asyncHandler(async (req, res) => {
 
     // Upload media to Cloudinary if provided
     try {
+
+        // Log file size before Base64 conversion
+      console.log(`Attempting upload for file size: ${file.size} bytes`);
+
       // Convert buffer to base64
       const base64Media = `data:${file.mimetype};base64,${file.buffer.toString(
         "base64"
       )}`;
+
+        // Log the size of the Base64 string (optional, but good for diagnostics)
+      console.log(`Base64 string size: ${base64Media.length} characters`);
 
       const uploadResponse = await cloudinary.uploader.upload(base64Media, {
         folder: folderName,
@@ -437,6 +444,7 @@ const kycSetup = asyncHandler(async (req, res) => {
       });
 
       mediaUrl = uploadResponse.secure_url;
+      console.log(`Cloudinary upload successful. URL: ${mediaUrl}`);
     } catch (uploadError) {
       console.error("Cloudinary upload error:", uploadError);
       return res.status(400).json({ error: "Failed to upload media" });

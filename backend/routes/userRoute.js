@@ -60,7 +60,21 @@ const {
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 const { changePasswordValidator, twofaAuthenticationValidator, adminUpdateUserValidator, adminFundTradeBalanceValidator, adminAddNewAssetWalletToUserValidator, adminApproveIdValidator, adminChangeUserCurrencyValidator, adminActivateDemoAccountValidator, adminSetUserAutoTradeValidator, adminSetUserWithdrawalLockValidator, adminSendCustomizedMailValidator, adminAddGiftRewardValidator, kycSetupValidator, changePinValidator } = require("../validators/userValidator");
 
-const upload = multer({ storage: multer.memoryStorage() });
+// const upload = multer({ storage: multer.memoryStorage() });
+
+// After (The Fix)
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: {
+        // Set the maximum field value size (1MB by default, but safe to set high)
+        fieldSize: MAX_FILE_SIZE_BYTES, 
+        
+        // Set the maximum file size (crucial for large file uploads)
+        fileSize: MAX_FILE_SIZE_BYTES 
+    }
+});
 
 const uploadMultiple = multer({
   storage: multer.memoryStorage(), // You can use memoryStorage or switch to diskStorage as needed

@@ -546,7 +546,7 @@ const UserDetails = () => {
                 <Box m={1.5}>
                   Joined on{" "}
                   {(() => {
-                    const date = new Date(user?.createdAt);
+                    const date = new Date(singleUser?.createdAt);
                     return date.toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",

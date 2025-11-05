@@ -1,9 +1,11 @@
 const depositEmailTemplate = (name, amount, method, txid, dashboardLink) => {
   const email = {
     body: {
-      greeting: false,
-      name,
-      intro: `You have successfully Deposited *${amount}*  your account.`,
+      // name,
+      intro: [
+        `${name},`,
+        `You have successfully deposited ${amount} to your account.`,
+      ],
       table: {
         data: [
           {

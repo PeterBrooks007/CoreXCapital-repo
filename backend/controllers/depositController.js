@@ -391,7 +391,7 @@ const approveDepositRequest = asyncHandler(async (req, res) => {
 
     if (req.body.status === "APPROVED") {
       template = depositEmailTemplate(
-        `${user.firstname} ${user.lastname}`,
+        `Deposit Confirmed`,
         `${depositAmount}`,
         `${method}`,
         `${updatedDepositRequest._id}`,

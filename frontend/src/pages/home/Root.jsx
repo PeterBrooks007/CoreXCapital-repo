@@ -31,7 +31,7 @@ const Root = () => {
         //    backgroundRepeat: "no-repeat", // Prevents the image from repeating
         // }}
       >
-        <MatrixPopup />
+        {/* <MatrixPopup /> */}
 
         <HomeHeader />
         <Outlet />

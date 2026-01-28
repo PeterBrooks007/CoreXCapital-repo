@@ -92,7 +92,7 @@ const DashboardRoot = () => {
     if (
       !isLoading &&
       (user?.accountLock.generalLock === true ||
-        user?.accountLock.upgradeLock === true ||
+        // user?.accountLock.upgradeLock === true ||
         user?.accountLock.signalLock === true)
     ) {
       setOpen(true);

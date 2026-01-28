@@ -2,11 +2,15 @@ const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const Withdrawal = require("../models/withdrawalModel");
 const axios = require("axios");
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
 const Notifications = require("../models/notificationsModel");
-const { adminGeneralEmailTemplate } = require("../emailTemplates/adminGeneralEmailTemplate");
+const {
+  adminGeneralEmailTemplate,
+} = require("../emailTemplates/adminGeneralEmailTemplate");
 const sendEmail = require("../utils/sendEmail");
-
+const {
+  withdrawalEmailTemplate,
+} = require("../emailTemplates/withdrawalEmailTemplate");
 
 //Withdraw Fund
 const withdrawFund = asyncHandler(async (req, res) => {
@@ -33,12 +37,21 @@ const withdrawFund = asyncHandler(async (req, res) => {
     throw new Error("Insufficient balance");
   }
 
-  //Decrease sender account balance
+  //Decrease sender account balance and change upgrade request to true
+  // await User.findOneAndUpdate(
+  //   { _id: req.user._id },
+  //   {
+  //     $inc: { balance: -amount },
+  //     $set: { "accountLock.upgradeLock": true },
+  //   },
+  //   { new: true },
+  // );
+
   await User.findOneAndUpdate(
     { _id: req.user._id },
     {
       $inc: { balance: -amount },
-    }
+    },
   );
 
   //Save transaction
@@ -48,25 +61,24 @@ const withdrawFund = asyncHandler(async (req, res) => {
     status: "PENDING",
   });
 
-    // Send withdrawal request email to admin
-    const introMessage = `This user ${user.firstname+" "+user.lastname} with email address ${user.email} just made a withdrawal request of ${amount} ${user.currency.code} with ${method} method`
+  // Send withdrawal request email to admin
+  const introMessage = `This user ${user.firstname + " " + user.lastname} with email address ${user.email} just made a withdrawal request of ${amount} ${user.currency.code} with ${method} method`;
 
-    const subjectAdmin = "New Withdrawal Request - corexcapital"
-    const send_to_Admin = process.env.EMAIL_USER
-    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@corexcapital.net"
+  const subjectAdmin = "New Withdrawal Request - corexcapital";
+  const send_to_Admin = process.env.EMAIL_USER;
+  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+  const reply_toAdmin = "no_reply@corexcapital.net";
 
-    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
+  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
-
-   //send withdrawal notification message object to admin
-   const searchWord = "Support Team";
-   const notificationObject = {
+  //send withdrawal notification message object to admin
+  const searchWord = "Support Team";
+  const notificationObject = {
     to: searchWord,
-    from: `${user.firstname+" "+user.lastname}`,
+    from: `${user.firstname + " " + user.lastname}`,
     notificationIcon: "CurrencyCircleDollar",
     title: "Withdrawal Request",
-    message: `${user.firstname+" "+user.lastname} just made a withdrawal request of ${amount} ${user.currency.code}`,
+    message: `${user.firstname + " " + user.lastname} just made a withdrawal request of ${amount} ${user.currency.code}`,
     route: "/dashboard",
   };
 
@@ -74,10 +86,40 @@ const withdrawFund = asyncHandler(async (req, res) => {
   await Notifications.updateOne(
     { userId: user._id },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
-  res.status(200).json({ message: "Your Withdrawal Request has been initiated successfully " });
+  // Send confirm withdrawal email to user
+  try {
+    const subject = "Confirm Withdrwal - corexcapital";
+    const send_to = user.email;
+
+    const withdrawalAmount = Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: user.currency.code,
+      ...(amount > 9999999 ? { notation: "compact" } : {}),
+    }).format(amount);
+
+    const dashboardLink = "corexcapital.net/dashboard/confirm-withdrawal";
+
+    const template = withdrawalEmailTemplate(
+      `Withdrawal Request`,
+      `${withdrawalAmount}`,
+      `${method}`,
+      `${walletAddress}`,
+      `${dashboardLink}`,
+    );
+
+    const reply_to = process.env.EMAIL_USER;
+
+    await sendEmail(subject, send_to, template, reply_to);
+  } catch (error) {
+    console.error("Failed to send email:", error.message);
+  }
+
+  res.status(200).json({
+    message: "Your Withdrawal Request has been initiated successfully ",
+  });
   // res.status(200).json(withdrawalHistory);
 });
 
@@ -100,19 +142,21 @@ const getUserWithdrawalhistory = asyncHandler(async (req, res) => {
   res.status(200).json(withdrawalHistory);
 });
 
-
 //Admin Get All Pending Withdrawal Request
-const getAllPendingWithdrawalRequest = asyncHandler (async (req, res) => {
-  const AllPendingWithdrawalRequest = await Withdrawal.find({ status: "PENDING" }).sort("-createdAt").populate("userId");
-  res.status(200).json(AllPendingWithdrawalRequest)
+const getAllPendingWithdrawalRequest = asyncHandler(async (req, res) => {
+  const AllPendingWithdrawalRequest = await Withdrawal.find({
+    status: "PENDING",
+  })
+    .sort("-createdAt")
+    .populate("userId");
+  res.status(200).json(AllPendingWithdrawalRequest);
 });
-
-
 
 //Admin Approve Withdrawal Request
 const approveWithdrawalRequest = asyncHandler(async (req, res) => {
   const requestId = req.params.id;
-  const withdrawalRequest = await Withdrawal.findById(requestId).select("-password");
+  const withdrawalRequest =
+    await Withdrawal.findById(requestId).select("-password");
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -121,43 +165,40 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
     throw new Error(errors.array()[0].msg);
   }
 
-
-
   if (withdrawalRequest) {
-    const { typeOfDeposit, method, amount, status } =
-    withdrawalRequest;
+    const { typeOfDeposit, method, amount, status } = withdrawalRequest;
 
     // withdrawalRequest.typeOfDeposit = req.body.typeOfDeposit || typeOfDeposit;
     // withdrawalRequest.method = req.body.method || method;
     // withdrawalRequest.amount = req.body.amount || amount;
     withdrawalRequest.status = req.body.status || status;
-   
 
     const updatedWithdrawalRequest = await withdrawalRequest.save();
     if (updatedWithdrawalRequest) {
+      //send Withdrawal approval notification message object to user
+      const searchWord = "Support Team";
+      const notificationObject = {
+        to: `This user`,
+        from: searchWord,
+        notificationIcon: "CurrencyCircleDollar",
+        title: "Withdrawal Request",
+        message: `Your Withdrawal request of ${amount} has been updated. Please check your withdrawal history.`,
+        route: "/dashboard",
+      };
 
-   //send Withdrawal approval notification message object to user
-  const searchWord = "Support Team";
-  const notificationObject = {
-    to: `This user`,
-    from: searchWord,
-    notificationIcon: "CurrencyCircleDollar",
-    title: "Withdrawal Request",
-    message: `Your Withdrawal request of ${amount} has been updated. Please check your withdrawal history.`,
-    route: "/dashboard"
-  };
+      // Add the Notifications
+      await Notifications.updateOne(
+        { userId: withdrawalRequest.userId },
+        { $push: { notifications: notificationObject } },
+        { upsert: true }, // Creates a new document if recipient doesn't exist
+      );
 
-  // Add the Notifications
-  await Notifications.updateOne(
-    { userId: withdrawalRequest.userId },
-    { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
-  );
-
-
-      const AllPendingWithdrawalRequest = await Withdrawal.find({ status: "PENDING" }).sort("-createdAt").populate("userId");
+      const AllPendingWithdrawalRequest = await Withdrawal.find({
+        status: "PENDING",
+      })
+        .sort("-createdAt")
+        .populate("userId");
       res.status(200).json(AllPendingWithdrawalRequest);
-
     } else {
       res.status(404);
       throw new Error("An Error Occur");
@@ -167,8 +208,6 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
     throw new Error("Withdrawal Request not found");
   }
 });
-
-
 
 // Admin Delete Withdrawal Request
 
@@ -183,15 +222,16 @@ const deleteWithdrawalRequest = asyncHandler(async (req, res) => {
     throw new Error("Withdrawal request not found");
   }
 
-
-  const AllPendingWithdrawalRequest = await Withdrawal.find({ status: "PENDING" }).sort("-createdAt").populate("userId");
-  res.status(200)
-  .json({ data: AllPendingWithdrawalRequest, message: "Withdrawal Request deleted successfully" });
-
- 
+  const AllPendingWithdrawalRequest = await Withdrawal.find({
+    status: "PENDING",
+  })
+    .sort("-createdAt")
+    .populate("userId");
+  res.status(200).json({
+    data: AllPendingWithdrawalRequest,
+    message: "Withdrawal Request deleted successfully",
+  });
 });
-
-
 
 //adminGetUserWithdrawalhistory
 const adminGetUserWithdrawalhistory = asyncHandler(async (req, res) => {
@@ -212,16 +252,11 @@ const adminGetUserWithdrawalhistory = asyncHandler(async (req, res) => {
   res.status(200).json(withdrawalHistory);
 });
 
-
-
-
-
-
 module.exports = {
   withdrawFund,
   getUserWithdrawalhistory,
   getAllPendingWithdrawalRequest,
   approveWithdrawalRequest,
   deleteWithdrawalRequest,
-  adminGetUserWithdrawalhistory
+  adminGetUserWithdrawalhistory,
 };

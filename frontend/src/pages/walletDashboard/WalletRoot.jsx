@@ -28,9 +28,8 @@ const WalletRoot = () => {
   const isScrolling = useScrollActivity();
 
   const { user, isLoggedIn, isLoading } = useSelector((state) => state.auth);
-  
 
-    //socket connection
+  //socket connection
   useEffect(() => {
     if (isLoggedIn && user?._id) {
       if (!socket) {
@@ -44,8 +43,6 @@ const WalletRoot = () => {
         // Notify server the user is online
         socket.emit("userOnline", user?._id);
 
-       
-
         // Cleanup event listeners only
         return () => {
           socket?.off("updateStatus");
@@ -54,17 +51,15 @@ const WalletRoot = () => {
     }
   }, [isLoggedIn, user?._id]);
 
-
   useEffect(() => {
     if (isLoggedIn && user === null) {
       dispatch(getUser());
     }
   }, [dispatch, isLoggedIn, user]);
 
-     useEffect(() => {
-        dispatch(getLoginStatus());
-      }, [dispatch, isLoggedIn]);
-    
+  useEffect(() => {
+    dispatch(getLoginStatus());
+  }, [dispatch, isLoggedIn]);
 
   if (!isLoading && isLoggedIn === false) {
     navigate("/auth/login");
@@ -92,7 +87,6 @@ const WalletRoot = () => {
   useEffect(() => {
     dispatch(getAllUserTotalCounts());
   }, [dispatch, isLoggedIn]);
-  
 
   useEffect(() => {
     if (!user?.currency?.code) {
@@ -101,7 +95,7 @@ const WalletRoot = () => {
 
     const checkAndUpdatePrices = () => {
       const allCoinpaprikaCoinPricesData = localStorage.getItem(
-        "allCoinpaprikaCoinPrices"
+        "allCoinpaprikaCoinPrices",
       );
 
       if (allCoinpaprikaCoinPricesData) {
@@ -112,7 +106,7 @@ const WalletRoot = () => {
 
         // Check if any of the data's quote matches the user's currency code
         const doesCurrencyMatch = data.some(
-          (coin) => coin.quotes[user?.currency?.code]
+          (coin) => coin.quotes[user?.currency?.code],
         );
 
         // console.log(doesCurrencyMatch);
@@ -141,9 +135,12 @@ const WalletRoot = () => {
     checkAndUpdatePrices();
 
     // Set an interval to repeat the check every 15 minutes
-    const intervalId = setInterval(() => {
-      checkAndUpdatePrices();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    const intervalId = setInterval(
+      () => {
+        checkAndUpdatePrices();
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes in milliseconds
 
     // Cleanup the interval on component unmount
     return () => clearInterval(intervalId);
@@ -217,7 +214,6 @@ const WalletRoot = () => {
       dispatch(getAllCoins());
     }
   }, [dispatch]);
-
 
   return (
     <Box

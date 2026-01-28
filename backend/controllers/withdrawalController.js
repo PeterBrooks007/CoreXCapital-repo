@@ -100,7 +100,7 @@ const withdrawFund = asyncHandler(async (req, res) => {
       ...(amount > 9999999 ? { notation: "compact" } : {}),
     }).format(amount);
 
-    const dashboardLink = "corexcapital.net/dashboard/confirm-withdrawal";
+    const dashboardLink = "https://corexcapital.net/dashboard/confirm-withdrawal";
 
     const template = withdrawalEmailTemplate(
       `Withdrawal Request`,

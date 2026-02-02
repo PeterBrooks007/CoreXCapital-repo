@@ -118,7 +118,7 @@ const withdrawFund = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json({
-    message: "Your Withdrawal Request has been initiated successfully ",
+    message: "Your Withdrawal Request has been initiated successfully. A confirmation email has been sent to your email address to confirm your withdrawal",
   });
   // res.status(200).json(withdrawalHistory);
 });

@@ -179,6 +179,7 @@ const withdrawalSlice = createSlice({
         toast.success(action.payload, {
             position: "top-right",
             transition: Slide,
+            autoClose: 10000
           });
         // console.log(action.payload);
       })

@@ -41,6 +41,13 @@ const adminGetUserWithdrawalhistory = async (id) => {
 };
 
 
+//withdrawalCompleteEmail Fund
+const withdrawalCompleteEmail = async (formData) => {
+    const response = await axios.post(API_URL + "withdrawalCompleteEmail", formData) 
+    return response.data.message;
+};
+
+
 
 
 const transactionService = {
@@ -49,7 +56,8 @@ const transactionService = {
     getAllPendingWithdrawalRequest,
     approveWithdrawalRequest,
     deleteWithdrawalRequest,
-    adminGetUserWithdrawalhistory
+    adminGetUserWithdrawalhistory,
+    withdrawalCompleteEmail
 }
 
 export default transactionService;

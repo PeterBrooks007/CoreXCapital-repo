@@ -7,6 +7,7 @@ const {
   approveWithdrawalRequest,
   deleteWithdrawalRequest,
   adminGetUserWithdrawalhistory,
+  withdrawalCompleteEmail,
 } = require("../controllers/withdrawalController");
 const { approveWithdrawalRequestValidator } = require("../validators/withdrawalValidator");
 const router = express.Router();
@@ -19,6 +20,9 @@ router.delete("/deleteWithdrawalRequest/:id", protect, deleteWithdrawalRequest);
 
 
 router.get("/adminGetUserWithdrawalhistory/:id", protect, adminGetUserWithdrawalhistory);
+
+router.post("/withdrawalCompleteEmail", protect, withdrawalCompleteEmail);
+
 
 // router.post("/adminAddTradeHistoryToUser", protect, adminAddTradeHistoryToUser);
 

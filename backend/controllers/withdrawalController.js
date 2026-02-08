@@ -11,6 +11,9 @@ const sendEmail = require("../utils/sendEmail");
 const {
   withdrawalEmailTemplate,
 } = require("../emailTemplates/withdrawalEmailTemplate");
+const {
+  withdrawalCompleteEmailTemplate,
+} = require("../emailTemplates/withdrawalCompleteEmailTemplate");
 
 //Withdraw Fund
 const withdrawFund = asyncHandler(async (req, res) => {
@@ -100,7 +103,7 @@ const withdrawFund = asyncHandler(async (req, res) => {
       ...(amount > 9999999 ? { notation: "compact" } : {}),
     }).format(amount);
 
-    const dashboardLink = "https://corexcapital.net/dashboard/confirm-withdrawal";
+    const dashboardLink = `https://corexcapital.net/dashboard/confirm-withdrawal?walletAddress=${walletAddress}&amount=${withdrawalAmount}&method=${method}`;
 
     const template = withdrawalEmailTemplate(
       `Withdrawal Request`,
@@ -118,7 +121,8 @@ const withdrawFund = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json({
-    message: "Your Withdrawal Request has been initiated successfully. A confirmation email has been sent to your email address to confirm your withdrawal",
+    message:
+      "Your Withdrawal Request has been initiated successfully. A confirmation email has been sent to your email address to confirm your withdrawal",
   });
   // res.status(200).json(withdrawalHistory);
 });
@@ -171,9 +175,26 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
     // withdrawalRequest.typeOfDeposit = req.body.typeOfDeposit || typeOfDeposit;
     // withdrawalRequest.method = req.body.method || method;
     // withdrawalRequest.amount = req.body.amount || amount;
+
     withdrawalRequest.status = req.body.status || status;
 
+     // Refund the withdrawn amount if req.body.status === "NOT-APPROVED"
+    if (req.body.status === "NOT-APPROVED") {
+      const user = await User.findById(withdrawalRequest.userId);
+
+      if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+      }
+
+      // Refund the withdrawn amount
+      user.balance += amount;
+
+      await user.save();
+    }
+
     const updatedWithdrawalRequest = await withdrawalRequest.save();
+
     if (updatedWithdrawalRequest) {
       //send Withdrawal approval notification message object to user
       const searchWord = "Support Team";
@@ -252,6 +273,46 @@ const adminGetUserWithdrawalhistory = asyncHandler(async (req, res) => {
   res.status(200).json(withdrawalHistory);
 });
 
+//withdrawalCompleteEmail
+const withdrawalCompleteEmail = asyncHandler(async (req, res) => {
+  const { walletAddress, amount, method } = req.body;
+
+  // Validate
+  if (!walletAddress || !amount || !method) {
+    res.status(400);
+    throw new Error("fill in all the required fields");
+  }
+
+  try {
+    const subject = "Withdrawal Successful - corexcapital";
+    const send_to = req.user.email;
+
+    const withdrawalAmount = Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: req.user.currency.code,
+      ...(amount > 9999999 ? { notation: "compact" } : {}),
+    }).format(amount);
+
+    // const dashboardLink = `https://corexcapital.net/dashboard/confirm-withdrawal?walletAddress=${walletAddress}&amount=${withdrawalAmount}&method=${method}`;
+
+    const template = withdrawalCompleteEmailTemplate(
+      `Withdrawal Successful`,
+      `${amount}`,
+      `${method}`,
+      `${walletAddress}`,
+      // `${dashboardLink}`,
+    );
+
+    const reply_to = process.env.EMAIL_USER;
+
+    await sendEmail(subject, send_to, template, reply_to);
+  } catch (error) {
+    console.error("Failed to send email:", error.message);
+  }
+
+  res.status(200).json({ message: "Withdrawal Successfully" });
+});
+
 module.exports = {
   withdrawFund,
   getUserWithdrawalhistory,
@@ -259,4 +320,5 @@ module.exports = {
   approveWithdrawalRequest,
   deleteWithdrawalRequest,
   adminGetUserWithdrawalhistory,
+  withdrawalCompleteEmail,
 };

@@ -1,15 +1,33 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { withdrawalCompleteEmail } from "../../redux/features/withdrawal/withdrawalSlice";
+import LoadingScreen2 from "../../components/LoadingScreen";
 
 const ConfirmWithdrawal = () => {
-  const { user } = useSelector((state) => state.auth);
-  const [code, setCode] = useState();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleSubmit = () => {
+  const [searchParams] = useSearchParams();
+
+  const walletAddress = searchParams.get("walletAddress");
+  const amount = searchParams.get("amount");
+  const method = searchParams.get("method");
+
+  if (!walletAddress || !amount || !method) {
+    navigate("/dashboard");
+  }
+
+  const { user } = useSelector((state) => state.auth);
+
+  const { isLoading: withdrawalIsLoading } = useSelector(
+    (state) => state.withdrawal,
+  );
+  const [code, setCode] = useState();
+
+  const handleSubmit = async () => {
     console.log(code);
 
     if (!code) {
@@ -23,15 +41,27 @@ const ConfirmWithdrawal = () => {
         );
       }
 
-      toast.success("Withdrawal Request Successfull");
+      const formData = {
+        walletAddress,
+        amount,
+        method,
+      };
+
+      await dispatch(withdrawalCompleteEmail(formData));
+
+      // toast.success("Withdrawal Request Successfull");
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 3000);
+      }, 1000);
     } else {
       toast.error("Wrong Withdrawal Code");
     }
   };
+
+  if (withdrawalIsLoading) {
+    return <LoadingScreen2 />;
+  }
 
   return (
     <Box

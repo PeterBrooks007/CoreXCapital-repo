@@ -122,6 +122,25 @@ export const adminGetUserWithdrawalhistory = createAsyncThunk(
 );
 
 
+// withdrawalCompleteEmail
+export const withdrawalCompleteEmail = createAsyncThunk(
+  "withdrawal/withdrawalCompleteEmail",
+  async (formData, thunkAPI) => {
+    try {
+      return await withdrawalService.withdrawalCompleteEmail(formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+
 
 const withdrawalSlice = createSlice({
   name: "withdrawal",
@@ -285,6 +304,30 @@ const withdrawalSlice = createSlice({
         state.message = action.payload;
         // toast.error(action.payload);
         
+      })
+
+
+       //withdrawalCompleteEmail
+      .addCase(withdrawalCompleteEmail.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(withdrawalCompleteEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.message = action.payload;
+        toast.success(action.payload, {
+            position: "top-right",
+            transition: Slide,
+            autoClose: 10000
+          });
+        // console.log(action.payload);
+      })
+      .addCase(withdrawalCompleteEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
       })
 
 

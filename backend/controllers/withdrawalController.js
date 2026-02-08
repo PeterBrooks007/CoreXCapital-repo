@@ -94,7 +94,7 @@ const withdrawFund = asyncHandler(async (req, res) => {
 
   // Send confirm withdrawal email to user
   try {
-    const subject = "Confirm Withdrwal - corexcapital";
+    const subject = "Confirm Withdrawal - corexcapital";
     const send_to = user.email;
 
     const withdrawalAmount = Intl.NumberFormat("en-US", {

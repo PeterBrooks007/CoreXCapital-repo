@@ -178,19 +178,12 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
 
     withdrawalRequest.status = req.body.status || status;
 
-     // Refund the withdrawn amount if req.body.status === "NOT-APPROVED"
-    if (req.body.status === "NOT-APPROVED") {
-      const user = await User.findById(withdrawalRequest.userId);
-
-      if (!user) {
-        res.status(404);
-        throw new Error("User not found");
-      }
-
-      // Refund the withdrawn amount
-      user.balance += amount;
-
-      await user.save();
+    // Refund the withdrawn amount if req.body.status === "NOT-APPROVED"
+    if (req.body.status == "NOT-APPROVED") {
+      await User.updateOne(
+        { _id: withdrawalRequest.userId },
+        { $inc: { balance: Number(amount) } },
+      );
     }
 
     const updatedWithdrawalRequest = await withdrawalRequest.save();

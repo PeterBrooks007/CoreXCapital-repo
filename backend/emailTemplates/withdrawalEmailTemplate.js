@@ -16,14 +16,14 @@ const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardL
           },
         ],
       },
-      action: {
-        instructions: "Please kindly confirm your withdrawal with the button below:",
-        button: {
-          color: "#F3BA2F", // Binance yellow
-          text: "Confirm Withdrawal",
-          link: dashboardLink,
-        },
-      },
+      // action: {
+      //   instructions: "Please kindly confirm your withdrawal with the button below:",
+      //   button: {
+      //     color: "#F3BA2F", // Binance yellow
+      //     text: "Confirm Withdrawal",
+      //     link: dashboardLink,
+      //   },
+      // },
       outro:
         "Don't recognize this activity? Reset your password immediately and contact support.",
       signature: "Best Regards",

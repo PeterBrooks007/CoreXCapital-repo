@@ -9,11 +9,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { withdrawalCompleteEmail } from "../../redux/features/withdrawal/withdrawalSlice";
+import {
+  getUserWithdrawalhistory,
+  withdrawalPendingEmail,
+} from "../../redux/features/withdrawal/withdrawalSlice";
 import LoadingScreen2 from "../../components/LoadingScreen";
 
 const ConfirmWithdrawal = () => {
@@ -21,6 +24,29 @@ const ConfirmWithdrawal = () => {
   const dispatch = useDispatch();
 
   const [searchParams] = useSearchParams();
+
+  const { withdrawals, isLoading, isSuccess, isError } = useSelector(
+    (state) => state.withdrawal,
+  );
+
+  const withdrawalId = searchParams.get("id");
+
+  const selectedWithdrawal = withdrawals.find(
+    (item) => item._id === withdrawalId,
+  );
+
+  console.log(selectedWithdrawal);
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      withdrawals.length === 0 &&
+      isSuccess === false &&
+      isError === false
+    ) {
+      dispatch(getUserWithdrawalhistory());
+    }
+  }, [withdrawals.length, dispatch, isLoading, isSuccess, isError]);
 
   const walletAddress = searchParams.get("walletAddress");
   const amount = searchParams.get("amount");
@@ -34,6 +60,13 @@ const ConfirmWithdrawal = () => {
   if (!walletAddress || !amount || !method) {
     navigate("/dashboard");
   }
+
+  useEffect(() => {
+    if (selectedWithdrawal?.status === "APPROVED") {
+      toast.success("This withdrawal has been approved successfully.");
+      navigate("/dashboard");
+    }
+  }, [selectedWithdrawal?.status, navigate]);
 
   const { user } = useSelector((state) => state.auth);
 
@@ -56,9 +89,9 @@ const ConfirmWithdrawal = () => {
         );
       }
 
-      if (user?.withdrawalLocked?.isWithdrawalLocked) {
-        return handleOpenWithdrawalLockModal();
-      }
+      // if (user?.withdrawalLocked?.isWithdrawalLocked) {
+      //   return handleOpenWithdrawalLockModal();
+      // }
 
       const formData = {
         walletAddress,
@@ -66,7 +99,7 @@ const ConfirmWithdrawal = () => {
         method,
       };
 
-      await dispatch(withdrawalCompleteEmail(formData));
+      await dispatch(withdrawalPendingEmail(formData));
 
       // toast.success("Withdrawal Request Successfull");
 
@@ -154,7 +187,7 @@ const ConfirmWithdrawal = () => {
                 method,
               };
 
-              await dispatch(withdrawalCompleteEmail(formData));
+              await dispatch(withdrawalPendingEmail(formData));
 
               // toast.success("Withdrawal Request Successfull");
 

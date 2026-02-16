@@ -1,11 +1,11 @@
-const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardLink) => {
+const withdrawalPendingEmailTemplate = (name, amount, method, walletAddress) => {
   const email = {
     body: {
       greeting: false,
 
       intro: `
         <p><strong>${name}</strong></p>
-        <p>You have successfully withdrawn <strong>${amount}</strong> from your account.</p>
+        <p>Your withdrawal request of <strong>${amount}</strong> from your account has been successfully initiated and is currently processing. You will be notified once it is completed </p>
       `,
       table: {
         data: [
@@ -33,5 +33,5 @@ const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardL
 };
 
 module.exports = {
-  withdrawalEmailTemplate,
+  withdrawalPendingEmailTemplate,
 };

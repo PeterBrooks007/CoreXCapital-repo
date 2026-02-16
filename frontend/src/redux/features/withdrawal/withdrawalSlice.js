@@ -122,12 +122,12 @@ export const adminGetUserWithdrawalhistory = createAsyncThunk(
 );
 
 
-// withdrawalCompleteEmail
-export const withdrawalCompleteEmail = createAsyncThunk(
-  "withdrawal/withdrawalCompleteEmail",
+// withdrawalPendingEmail
+export const withdrawalPendingEmail = createAsyncThunk(
+  "withdrawal/withdrawalPendingEmail",
   async (formData, thunkAPI) => {
     try {
-      return await withdrawalService.withdrawalCompleteEmail(formData);
+      return await withdrawalService.withdrawalPendingEmail(formData);
     } catch (error) {
       const message =
         (error.response &&
@@ -307,11 +307,11 @@ const withdrawalSlice = createSlice({
       })
 
 
-       //withdrawalCompleteEmail
-      .addCase(withdrawalCompleteEmail.pending, (state) => {
+       //withdrawalPendingEmail
+      .addCase(withdrawalPendingEmail.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(withdrawalCompleteEmail.fulfilled, (state, action) => {
+      .addCase(withdrawalPendingEmail.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
@@ -323,7 +323,7 @@ const withdrawalSlice = createSlice({
           });
         // console.log(action.payload);
       })
-      .addCase(withdrawalCompleteEmail.rejected, (state, action) => {
+      .addCase(withdrawalPendingEmail.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

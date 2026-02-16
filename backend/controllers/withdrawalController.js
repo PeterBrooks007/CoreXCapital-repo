@@ -14,6 +14,9 @@ const {
 const {
   withdrawalPendingEmailTemplate,
 } = require("../emailTemplates/withdrawalPendingEmailTemplate");
+const {
+  withdrawalCompleteEmailTemplate,
+} = require("../emailTemplates/withdrawalCompleteEmailTemplate");
 
 //Withdraw Fund
 const withdrawFund = asyncHandler(async (req, res) => {
@@ -204,7 +207,7 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
 
         // const dashboardLink = `https://corexcapital.net/dashboard/confirm-withdrawal?walletAddress=${walletAddress}&amount=${withdrawalAmount}&method=${method}`;
 
-        const template = withdrawalEmailTemplate(
+        const template = withdrawalCompleteEmailTemplate(
           `Withdrawal Successful`,
           `${withdrawalAmount}`,
           `${method}`,

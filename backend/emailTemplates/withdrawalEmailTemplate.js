@@ -5,7 +5,7 @@ const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardL
 
       intro: `
         <p><strong>${name}</strong></p>
-        <p>You have successfully withdrawn <strong>${amount}</strong> from your account.</p>
+        <p>You have initiated a request to withdraw Wallet Type: <strong>${method}</strong> to the following payment details</p>
       `,
       table: {
         data: [

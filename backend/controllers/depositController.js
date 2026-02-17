@@ -17,6 +17,7 @@ const {
 const {
   depositEmailTemplate,
 } = require("../emailTemplates/depositEmailTemplate");
+const { depositPendingEmailTemplate } = require("../emailTemplates/depositPendingEmailTemplate");
 
 //Deposit Fund
 const depositFund = asyncHandler(async (req, res) => {
@@ -103,6 +104,7 @@ const depositFund = asyncHandler(async (req, res) => {
           //Send Email to admin
 
           if (depositHistory) {
+
             // Send New Deposit Request email to admin
             const introMessage = `This user ${
               req.user.firstname + " " + req.user.lastname
@@ -147,6 +149,29 @@ const depositFund = asyncHandler(async (req, res) => {
               { upsert: true } // Creates a new document if recipient doesn't exist
             );
 
+            //Send deposit pending email to client
+             const subject = "Deposit Pending - corexcapital";
+                const send_to = req.user.email;
+            
+                const depositAmount = Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: req.user.currency.code,
+                  ...(amount > 9999999 ? { notation: "compact" } : {}),
+                }).format(amount);
+            
+             
+            
+                const template = depositPendingEmailTemplate(
+                  `Deposit Pending`,
+                  `${depositAmount}`,
+                  `${method}`,
+                  // `${dashboardLink}`,
+                );
+            
+                const reply_to = process.env.EMAIL_USER;
+            
+              await sendEmail(subject, send_to, template, reply_to);
+            
             res.status(200).json({
               message: "Your Deposit Request has been initiated successfully ",
             });

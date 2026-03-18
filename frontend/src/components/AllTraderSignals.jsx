@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { shortenText } from "../utils";
 import { getAllTradingSignals } from "../redux/features/tradingSignals/tradingSignalsSlice";
 import DepositDrawer from "./drawers/DepositDrawer";
+import { SET_TYPEOFDEPOSIT } from "../redux/features/app/appSlice";
 
 
 const AllTraderSignals = () => {
@@ -323,6 +324,8 @@ const AllTraderSignals = () => {
                     onClick={() => {
                       handleClose();
 
+                       dispatch(SET_TYPEOFDEPOSIT("Signal Purchase"));
+                      
                       setdepositLoader(true);
                         handleOpenDepositDrawer();
                     

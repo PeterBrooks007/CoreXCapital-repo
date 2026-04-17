@@ -17,6 +17,7 @@ const {
 const {
   withdrawalCompleteEmailTemplate,
 } = require("../emailTemplates/withdrawalCompleteEmailTemplate");
+const { withdrawalApprovalEmailTemplate } = require("../emailTemplates/withdrawalApprovalEmailTemplate");
 
 //Withdraw Fund
 const withdrawFund = asyncHandler(async (req, res) => {
@@ -213,6 +214,40 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
           `${method}`,
           `${walletAddress}`,
           // `${dashboardLink}`,
+        );
+
+        const reply_to = process.env.EMAIL_USER;
+
+        await sendEmail(subject, send_to, template, reply_to);
+      } catch (error) {
+        console.error("Failed to send email:", error.message);
+      }
+    }
+
+     //send Not approved email if status == "NOT-APPROVED"
+    if (req.body.status == "NOT-APPROVED") {
+
+      const user = await User.findById({ _id: withdrawalRequest.userId });
+
+      try {
+        const subject = "Withdrawal Declined - corexcapital";
+        const send_to = user.email;
+
+        const withdrawalAmount = Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: user.currency.code,
+          ...(amount > 9999999 ? { notation: "compact" } : {}),
+        }).format(amount);
+
+        const withdrawalMessage = `Your withdrawal request of ${withdrawalAmount} was not Approved, Please contact our support.`
+
+    
+        const template = withdrawalApprovalEmailTemplate(
+          `Withdrawal Not Approved`,
+          `${withdrawalAmount}`,
+          `${method}`,
+          `${walletAddress}`,
+          `${withdrawalMessage}`,
         );
 
         const reply_to = process.env.EMAIL_USER;

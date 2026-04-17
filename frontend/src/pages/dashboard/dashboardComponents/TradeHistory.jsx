@@ -146,7 +146,7 @@ const TradeHistory = () => {
                               trade?.buyOrSell === "Buy" ? "#009a4c" : "red"
                             }
                           >
-                            {trade?.buyOrSell}, {trade?.units} {trade?.units == 1 ? "unit" : "units"}
+                            {trade?.buyOrSell}, {trade?.units.toFixed(2)} {trade?.units == 1 ? "unit" : "units"}
                           </Typography>
                         </Stack>
 

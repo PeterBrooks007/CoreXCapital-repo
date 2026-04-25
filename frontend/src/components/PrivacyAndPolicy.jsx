@@ -221,7 +221,7 @@ function PrivacyAndPolicy() {
           <Typography variant="body1" paragraph>
             CoreXCapital Investment
             <br />
-            Email: support@corexcapital.net
+            Email: support@cxcapital.net
             <br />
             {/* Phone: [Your Contact Phone] */}
           </Typography>

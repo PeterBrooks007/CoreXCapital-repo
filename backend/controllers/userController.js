@@ -1778,7 +1778,7 @@ const adminApproveId = asyncHandler(async (req, res) => {
         subject: "Welcome to corexcapital",
         content: `Hello ${
           user.firstname + " " + user.lastname
-        }, We're excited to have you on board. corexcapital is an international investment company that combines the infrastructure and abilities of an investor with a best-in-class team of operations professionals. This unique combination of skills  has allowed us to become a top international Investment Platform.For more enquiry kindly contact your account manager or write directly with our live chat support on our platform or you can send a direct mail to us at support@corexcapital.net.`,
+        }, We're excited to have you on board. corexcapital is an international investment company that combines the infrastructure and abilities of an investor with a best-in-class team of operations professionals. This unique combination of skills  has allowed us to become a top international Investment Platform.For more enquiry kindly contact your account manager or write directly with our live chat support on our platform or you can send a direct mail to us at support@cxcapital.net.`,
       },
     ];
 

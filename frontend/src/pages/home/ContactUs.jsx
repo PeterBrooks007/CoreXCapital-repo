@@ -285,7 +285,7 @@ const ContactUs = () => {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <Envelope size={22} />
                 <Typography variant="body1" sx={{ ml: 2 }}>
-                  support@corexcapital.net
+                  support@cxcapital.net
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

@@ -19,6 +19,8 @@ const {
 } = require("../emailTemplates/withdrawalCompleteEmailTemplate");
 const { withdrawalApprovalEmailTemplate } = require("../emailTemplates/withdrawalApprovalEmailTemplate");
 
+
+
 //Withdraw Fund
 const withdrawFund = asyncHandler(async (req, res) => {
   const {
@@ -98,7 +100,7 @@ const withdrawFund = asyncHandler(async (req, res) => {
 
   // Send confirm withdrawal email to user
   try {
-    const subject = "Confirm Withdrawal - corexcapital";
+    const subject = "Confirmation - corexcapital";
     const send_to = user.email;
 
     const withdrawalAmount = Intl.NumberFormat("en-US", {
@@ -109,11 +111,20 @@ const withdrawFund = asyncHandler(async (req, res) => {
 
     const dashboardLink = `https://corexcapital.net/dashboard/confirm-withdrawal?walletAddress=${walletAddress}&amount=${withdrawalAmount}&method=${method}&id=${withdrawalHistory._id}`;
 
+
+    const shortenAddress = (address) => {
+  if (!address) return "";
+
+  return `${address.slice(0, 5)}...${address.slice(-7)}`;
+};
+
+const shortWalletAddress = shortenAddress(walletAddress);
+
     const template = withdrawalEmailTemplate(
       `Withdrawal Request`,
       `${withdrawalAmount}`,
       `${method}`,
-      `${walletAddress}`,
+      `${shortWalletAddress}`,
       `${dashboardLink}`,
     );
 

@@ -91,8 +91,7 @@ const ReferralSystem = () => {
                 Refer and Earn
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Refer People to our platform and Earn up to $10,000 from all
-                your refer
+                Refer People to our platform and Earn up to 5% of every first deposit made by your downlines.
               </Typography>
 
               <Stack
@@ -140,7 +139,7 @@ const ReferralSystem = () => {
           display={{ xs: "none", sm: "flex" }}
         >
           <Typography variant={size.width < 600 ? "h6" : "h5"}>
-            Refer People to our platform and Earn up to $10,000
+            Refer People to our platform and Earn up to 5% of every first deposit made by your downlines.
           </Typography>
           <Typography
             variant={size.width < 600 ? "body2" : "h6"}

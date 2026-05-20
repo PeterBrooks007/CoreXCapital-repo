@@ -5,7 +5,6 @@ const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardL
 
       intro: `
         <p><strong>${name}</strong></p>
-        <p>You have initiated a request to withdraw Wallet Type: <strong>${method}</strong> to the following payment details</p>
       `,
       table: {
         data: [
@@ -24,9 +23,8 @@ const withdrawalEmailTemplate = (name, amount, method, walletAddress, dashboardL
           link: dashboardLink,
         },
       },
-      outro:
-        "Don't recognize this activity? Reset your password immediately and contact support.",
-      signature: "Best Regards",
+       outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
+       signature: 'Best Regards'
     },
   };
   return email;

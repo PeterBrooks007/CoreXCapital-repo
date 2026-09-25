@@ -9,6 +9,7 @@ const { validationResult } = require('express-validator');
 const Notifications = require("../models/notificationsModel");
 const { adminGeneralEmailTemplate } = require("../emailTemplates/adminGeneralEmailTemplate");
 const sendEmail = require("../utils/sendEmail");
+const { userGeneralEmailTemplate } = require("../emailTemplates/userGeneralEmailTemplate");
 
 // Cloudinary configuration
 cloudinary.config({
@@ -420,6 +421,21 @@ const myExpertTrader = asyncHandler(async (req, res) => {
 
   await user.myTraders.unshift(expertTraderID);
   await user.save();
+
+
+  // Send copied trader email  to the user
+    const introMessage2 = `You are now copying "${expertTraderExists.firstname+" "+ expertTraderExists.lastname}", Their trades will be mirrored on your account automatically, scaled to your`;
+  
+    const subject = "Copy Trading - corexcapital";
+    const send_to = user.email;
+    const template = userGeneralEmailTemplate(
+      user.firstname + " " + user.lastname,
+      introMessage2,
+    );
+    const reply_to = process.env.EMAIL_USER;
+  
+    await sendEmail(subject, send_to, template, reply_to);
+  
 
 
 

@@ -80,7 +80,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
       {
         new: true,
         validateModifiedOnly: true,
-      }
+      },
     );
 
     // generate an otp and send to email
@@ -244,7 +244,7 @@ const sendOTP = asyncHandler(async (req, res) => {
     await Notifications.updateOne(
       { userId: user._id },
       { $push: { notifications: notificationObject } },
-      { upsert: true } // Creates a new document if recipient doesn't exist
+      { upsert: true }, // Creates a new document if recipient doesn't exist
     );
   }
 
@@ -352,7 +352,7 @@ const kycSetup = asyncHandler(async (req, res) => {
     // If the current photo exists, delete it from Cloudinary
     if (currentPhotoUrl) {
       const publicId = getPublicIdFromUrl(currentPhotoUrl);
-     await cloudinary.uploader.destroy(publicId); // Delete the old image
+      await cloudinary.uploader.destroy(publicId); // Delete the old image
     }
 
     // Get the MIME type of the uploaded file
@@ -394,8 +394,15 @@ const kycSetup = asyncHandler(async (req, res) => {
           }
 
           if (user) {
-            const { address, phone, accounttype, package, currency, photo, pin } =
-              user;
+            const {
+              address,
+              phone,
+              accounttype,
+              package,
+              currency,
+              photo,
+              pin,
+            } = user;
 
             const updateAddress = {
               address: req.body.userData.address,
@@ -427,7 +434,7 @@ const kycSetup = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error("User not found");
           }
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
@@ -514,7 +521,7 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
               } else {
                 resolve(result.secure_url);
               }
-            }
+            },
           )
           .end(compressedImageBuffer);
       });
@@ -536,16 +543,16 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
           try {
             await cloudinary.uploader.destroy(currenctFrontId); // Delete the old id front
             console.log(
-              `Successfully deleted old front ID: ${currenctFrontId}`
+              `Successfully deleted old front ID: ${currenctFrontId}`,
             );
           } catch (error) {
             console.warn(
-              `Cloudinary deletion failed for front ID: ${currenctFrontId}. Error: ${error.message}`
+              `Cloudinary deletion failed for front ID: ${currenctFrontId}. Error: ${error.message}`,
             );
           }
         } else {
           console.warn(
-            `Skipping front ID deletion: Could not extract valid public_id from URL: ${CurrenctFrontId}`
+            `Skipping front ID deletion: Could not extract valid public_id from URL: ${CurrenctFrontId}`,
           );
         }
       }
@@ -560,12 +567,12 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
             console.log(`Successfully deleted old back ID: ${currenctBackId}`);
           } catch (error) {
             console.warn(
-              `Cloudinary deletion failed for back ID: ${currenctBackId}. Error: ${error.message}`
+              `Cloudinary deletion failed for back ID: ${currenctBackId}. Error: ${error.message}`,
             );
           }
         } else {
           console.warn(
-            `Skipping back ID deletion: Could not extract valid public_id from URL: ${CurrenctBackId}`
+            `Skipping back ID deletion: Could not extract valid public_id from URL: ${CurrenctBackId}`,
           );
         }
       }
@@ -613,7 +620,7 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
     await Notifications.updateOne(
       { userId: user._id },
       { $push: { notifications: notificationObject } },
-      { upsert: true } // Creates a new document if recipient doesn't exist
+      { upsert: true }, // Creates a new document if recipient doesn't exist
     );
 
     res.status(200).json({
@@ -670,7 +677,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const send_to = user.email;
     const template = twoFaOtpEmailTemplate(
       user.firstname + " " + user.lastname,
-      new_otp
+      new_otp,
     );
     const reply_to = process.env.EMAIL_USER;
 
@@ -875,7 +882,7 @@ const updatePhoto = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error("User not found");
           }
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
@@ -982,7 +989,7 @@ const changeCurrency = asyncHandler(async (req, res) => {
   try {
     // Call third-party API to get exchange rate
     const response = await axios.get(
-      `${conversionApiUrl}${user.currency.code}`
+      `${conversionApiUrl}${user.currency.code}`,
     );
     const rates = response.data.rates;
 
@@ -1248,7 +1255,7 @@ const adminFundTradeBalance = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $inc: { balance: amount } }, // Only updating the balance field
-    { new: true }
+    { new: true },
   );
 
   //send notification message object to user
@@ -1266,7 +1273,7 @@ const adminFundTradeBalance = asyncHandler(async (req, res) => {
   await Notifications.updateOne(
     { userId },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   if (updatedUser) {
@@ -1297,7 +1304,7 @@ const adminDebitTradeBalance = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $inc: { balance: -amount } }, // Only updating the balance field
-    { new: true }
+    { new: true },
   );
 
   //notification message object
@@ -1315,7 +1322,7 @@ const adminDebitTradeBalance = asyncHandler(async (req, res) => {
   await Notifications.updateOne(
     { userId },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   if (updatedUser) {
@@ -1480,7 +1487,7 @@ const adminAddNewAssetWalletToUser = asyncHandler(async (req, res) => {
 
   // Check if the wallet already exists (case-insensitive)
   const walletExists = user.assets.some(
-    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase()
+    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase(),
   );
 
   if (walletExists) {
@@ -1582,7 +1589,7 @@ const adminAddNewAssetWalletToUser = asyncHandler(async (req, res) => {
             data: updatedUser,
             message: "Wallet address has been added successfully ",
           });
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
@@ -1610,7 +1617,7 @@ const adminDeleteAssetWalletFromUser = asyncHandler(async (req, res) => {
 
   // Find the wallet to delete
   const walletToDelete = user.assets.find(
-    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase()
+    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase(),
   );
 
   if (!walletToDelete) {
@@ -1629,7 +1636,7 @@ const adminDeleteAssetWalletFromUser = asyncHandler(async (req, res) => {
         },
       },
     },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   // Delete wallet image from Cloudinary, if it exists
@@ -1706,7 +1713,7 @@ const adminManualUpdateAssetBalance = asyncHandler(async (req, res) => {
   if (isNaN(numericAmount) || isNaN(numericAmountInCrypto)) {
     res.status(400);
     throw new Error(
-      "amount and amount in the crypto must be a valid number only"
+      "amount and amount in the crypto must be a valid number only",
     );
   }
 
@@ -1763,7 +1770,7 @@ const adminApproveId = asyncHandler(async (req, res) => {
   const send_to = user.email;
   const template = userGeneralEmailTemplate(
     user.firstname + " " + user.lastname,
-    introMessage
+    introMessage,
   );
   const reply_to = process.env.EMAIL_USER;
 
@@ -1785,7 +1792,7 @@ const adminApproveId = asyncHandler(async (req, res) => {
     await Mailbox.updateOne(
       { userId: user._id },
       { $push: { messages: messages } },
-      { upsert: true } // Creates a new document if recipient doesn't exist
+      { upsert: true }, // Creates a new document if recipient doesn't exist
     );
 
     // Create a notification Account Activation object for user
@@ -1804,7 +1811,7 @@ const adminApproveId = asyncHandler(async (req, res) => {
     await Notifications.updateOne(
       { userId: user._id },
       { $push: { notifications: notificationObject } },
-      { upsert: true } // Creates a new document if recipient doesn't exist
+      { upsert: true }, // Creates a new document if recipient doesn't exist
     );
   }
 
@@ -2091,7 +2098,7 @@ const updateCustomizeEmailLogo = asyncHandler(async (req, res) => {
           } else {
             resolve(result);
           }
-        }
+        },
       );
 
       stream.end(compressedImageBuffer); // End the stream with the file buffer
@@ -2105,7 +2112,7 @@ const updateCustomizeEmailLogo = asyncHandler(async (req, res) => {
     if (!updatedUser) {
       res.status(500);
       throw new Error(
-        "An Error Occurred while saving the updated ExpertTrader"
+        "An Error Occurred while saving the updated ExpertTrader",
       );
     }
 
@@ -2147,7 +2154,7 @@ const adminSendCustomizedMail = asyncHandler(async (req, res) => {
     send_to,
     template,
     reply_to,
-    customizedLogo
+    customizedLogo,
   );
 
   res.status(200).json({
@@ -2187,7 +2194,7 @@ const adminAddGiftReward = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $push: { giftRewards: newReward } },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   if (!updatedUser) {
@@ -2209,7 +2216,7 @@ const adminAddGiftReward = asyncHandler(async (req, res) => {
   await Notifications.updateOne(
     { userId },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   return res.status(200).json({
@@ -2232,7 +2239,7 @@ const adminDeleteGiftReward = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $pull: { giftRewards: { _id: rewardId } } }, // Remove reward with matching _id
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   if (!updatedUser) {
@@ -2262,7 +2269,7 @@ const UserClaimReward = asyncHandler(async (req, res) => {
   }
 
   const rewardToClaim = user.giftRewards.find(
-    (reward) => reward._id.toString() === rewardId
+    (reward) => reward._id.toString() === rewardId,
   );
   if (!rewardToClaim) {
     return res.status(404).json({ message: "Reward not found" });
@@ -2277,7 +2284,7 @@ const UserClaimReward = asyncHandler(async (req, res) => {
       $inc: { balance: rewardAmount }, // Increment the balance directly
       $pull: { giftRewards: { _id: rewardId } }, // Remove the claimed reward
     },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   return res.status(200).json({
@@ -2344,7 +2351,7 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
     // Delete the user's idVerificationPhoto (front and back) from Cloudinary, if they exist
     if (user.idVerificationPhoto?.front) {
       const userIdVeriFront = getPublicIdFromUrl(
-        user.idVerificationPhoto.front
+        user.idVerificationPhoto.front,
       );
       await cloudinary.uploader.destroy(userIdVeriFront);
     }
@@ -2537,7 +2544,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const send_to = user.email;
     const template = resetPasswordEmailTemplate(
       user.firstname + " " + user.lastname,
-      resetPasswordLink
+      resetPasswordLink,
     );
     const reply_to = "no-reply@corexcapital.net";
 
@@ -2637,6 +2644,93 @@ const upgradeAccount = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Message Sent Successfully" });
 });
 
+// adminAddAlertNotification
+const adminAddAlertNotification = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  const { subject, message, buttonText } = req.body;
+
+  // Validate input
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400);
+    throw new Error(errors.array()[0].msg);
+  }
+
+  if (!subject || !message) {
+    return res
+      .status(400)
+      .json({ message: "Please fill in the required fields" });
+  }
+
+  // New Alert object
+  const newAlert = {
+    subject,
+    message,
+    buttonText,
+  };
+
+  // Use $push to add the reward to the user's giftRewards array
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $push: { alertNotifications: newAlert } },
+    { new: true }, // Return the updated document
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // //send Gift notification message object to user
+  // const searchWord = "Support Team";
+  // const notificationObject = {
+  //   to: `This user`,
+  //   from: searchWord,
+  //   notificationIcon: "CurrencyCircleDollar",
+  //   title: "Gift Reward",
+  //   message: `Congratulations! you have been gifted a gift reward of ${amount} ${updatedUser.currency.code}. please check the rewards section to claim`,
+  //   route: "/dashboard",
+  // };
+
+  // // Add the Notifications
+  // await Notifications.updateOne(
+  //   { userId },
+  //   { $push: { notifications: notificationObject } },
+  //   { upsert: true }, // Creates a new document if recipient doesn't exist
+  // );
+
+  return res.status(200).json({
+    data: updatedUser,
+    message: "Alert Notification has been added successfully",
+  });
+});
+
+// adminDeleteAlertNotification
+const adminDeleteAlertNotification = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  const { alertId } = req.body; // Pass the unique identifier for the reward
+
+  // Validate input
+  if (!alertId) {
+    return res.status(400).json({ message: "Alert ID is required" });
+  }
+
+  // Use $pull to remove the specific reward from the user's giftRewards array
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $pull: { alertNotifications: { _id: alertId } } }, // Remove reward with matching _id
+    { new: true }, // Return the updated document
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json({
+    data: updatedUser,
+    message: "Alert Notification has been removed successfully",
+  });
+});
+
 module.exports = {
   registerUser,
   sendOTP,
@@ -2693,4 +2787,6 @@ module.exports = {
   UserClaimReward,
   adminLockAccount,
   adminDeleteUser,
+  adminAddAlertNotification,
+  adminDeleteAlertNotification,
 };

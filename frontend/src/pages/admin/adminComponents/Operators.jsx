@@ -64,6 +64,7 @@ import RewardsDrawer from "../../../components/drawers/RewardsDrawal";
 import NftApproval from "../../../components/drawers/NftApproval";
 import WalletTransactionsDrawer from "./drawers/WalletTransactionsDrawer";
 import UserNotificationsDrawer from "./drawers/UserNotificationsDrawer";
+import AlertNotificationDrawer from "../../../components/drawers/AlertNotificationDrawer";
 
 const Operators = () => {
   const theme = useTheme();
@@ -376,6 +377,18 @@ const Operators = () => {
   const handleCloseUserNotificationDrawer = () => {
     setOpenUserNotificationDrawer(false);
     // document.documentElement.style.overflow = ""; // Resets <html> scroll
+  };
+
+  // Alert Notification Drawer
+  const [openAlertNotificationDrawer, setAlertNotificationDrawer] =
+    useState(false);
+
+  const handleOpenAlertNotificationDrawer = () => {
+    setAlertNotificationDrawer(true);
+  };
+
+  const handleCloseAlertNotificationDrawer = () => {
+    setAlertNotificationDrawer(false);
   };
 
   return (
@@ -1086,6 +1099,33 @@ const Operators = () => {
                 </Stack>
               </Stack>
             </Grid>
+
+            <Grid item xs={6} md={4}>
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                spacing={1}
+                border={"1px solid grey"}
+                width={"100%"}
+                p={2}
+                borderRadius={"15px"}
+                sx={{ cursor: "pointer" }}
+                onClick={() => {
+                  // setWithdrawalLocksDrawerLoader(true);
+                  handleOpenAlertNotificationDrawer();
+                }}
+              >
+                <IconButton
+                  sx={{ borderRadius: "10px", backgroundColor: "violet" }}
+                >
+                  <Bell color="black" />
+                </IconButton>
+                <Stack>
+                  <Typography>Alert </Typography>
+                  <Typography>Notification</Typography>
+                </Stack>
+              </Stack>
+            </Grid>
           </Grid>
         </Box>
       </Box>
@@ -1259,9 +1299,12 @@ const Operators = () => {
         userNotificationLoader={userNotificationLoader}
         setUserNotificationLoader={setUserNotificationLoader}
       />
-      
 
-
+      <AlertNotificationDrawer
+        open={openAlertNotificationDrawer}
+        handleClose={handleCloseAlertNotificationDrawer}
+        handleOpen={handleOpenAlertNotificationDrawer}
+      />
     </>
   );
 };

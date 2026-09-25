@@ -962,6 +962,45 @@ export const upgradeAccount = createAsyncThunk(
 );
 
 
+//adminAddAlertNotification
+export const adminAddAlertNotification = createAsyncThunk(
+  "auth/adminAddAlertNotification",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await authService.adminAddAlertNotification(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+
+//adminDeleteAlertNotification
+export const adminDeleteAlertNotification = createAsyncThunk(
+  "auth/adminDeleteAlertNotification",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await authService.adminDeleteAlertNotification(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -2348,6 +2387,58 @@ const authSlice = createSlice({
         })
   
         
+        
+      //adminAddAlertNotification
+      .addCase(adminAddAlertNotification.pending, (state) => {
+        state.isSemiLoading = true;
+      })
+      .addCase(adminAddAlertNotification.fulfilled, (state, action) => {
+        state.isSemiLoading = false;
+        state.isSuccess = true;
+        state.isLoggedIn = true;
+        state.singleUser = action.payload.data;
+        // console.log(action.payload);
+        toast.success(action.payload.message, {
+          position: "top-center",
+          transition: Slide,
+        });
+      })
+      .addCase(adminAddAlertNotification.rejected, (state, action) => {
+        state.isSemiLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload, {
+          position: "top-center",
+          transition: Slide,
+        });
+      })
+
+
+       //adminDeleteAlertNotification
+      .addCase(adminDeleteAlertNotification.pending, (state) => {
+        state.isSemiLoading = true;
+      })
+      .addCase(adminDeleteAlertNotification.fulfilled, (state, action) => {
+        state.isSemiLoading = false;
+        state.isSuccess = true;
+        state.isLoggedIn = true;
+        state.singleUser = action.payload.data;
+        // console.log(action.payload);
+        toast.success(action.payload.message, {
+          position: "top-center",
+          transition: Slide,
+        });
+      })
+      .addCase(adminDeleteAlertNotification.rejected, (state, action) => {
+        state.isSemiLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload, {
+          position: "top-center",
+          transition: Slide,
+        });
+      })
+
 
      
 

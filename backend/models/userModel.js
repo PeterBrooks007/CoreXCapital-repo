@@ -22,6 +22,15 @@ const giftRewardSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Define the schema for each alertNotifications field
+
+const alertNotificationsSchema = new mongoose.Schema({
+  subject: { type: String, required: true },
+  message: { type: String, required: true },
+  buttonText: { type: String },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const userSchema = mongoose.Schema(
   {
     firstname: {
@@ -262,10 +271,14 @@ const userSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    alertNotifications: {
+      type: [alertNotificationsSchema], // Array of giftReward objects
+      default: [], // Default to an empty array if not provided
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // //Encrypt pass before saving to db
@@ -296,7 +309,7 @@ userSchema.pre("save", async function (next) {
 //compare Otp
 userSchema.methods.correctOTP = async function (
   candidateOTP, //824356
-  userOTP // hjhuydfsfyhnkn =>
+  userOTP, // hjhuydfsfyhnkn =>
 ) {
   return await bcrypt.compare(candidateOTP, userOTP);
 };

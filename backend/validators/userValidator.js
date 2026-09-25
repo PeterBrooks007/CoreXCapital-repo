@@ -944,7 +944,59 @@ const changePinValidator = [
 
 
 
+// Validation middleware for adminAddAlertNotification input
+const adminAddAlertNotificationValidator = [
+ 
+
+  body('subject')
+  .notEmpty().withMessage('to is required')
+  .isString().withMessage("to must be a string")
+  .isLength({ max: 50 }).withMessage('to cannot exceed 50 characters')
+  .customSanitizer(value => purify.sanitize(value))
+  .custom(value => {
+    const decodedValue = decodeEntities(value);
+    const sanitizedValue = purify.sanitize(value); // Sanitize input again if needed
+
+    if (sanitizedValue !== decodedValue) {
+      throw new Error('to contains invalid or malicious content');
+    }
+
+    return value.trim() === '' ? 
+      Promise.reject(new Error('to cannot be empty or contain HTML entities')) : value;
+  }),
+
+  body('message')
+  .notEmpty().withMessage('message is required')
+  .isString().withMessage("message must be a string")
+  .isLength({ max: 500 }).withMessage('message cannot exceed 500 characters')
+  .customSanitizer(value => purify.sanitize(value))
+  .custom(value => {
+    const decodedValue = decodeEntities(value);
+    const sanitizedValue = purify.sanitize(value); // Sanitize input again if needed
+
+    if (sanitizedValue !== decodedValue) {
+      throw new Error('message contains invalid or malicious content');
+    }
+
+    return value.trim() === '' ? 
+      Promise.reject(new Error('message cannot be empty or contain HTML entities')) : value;
+  }),
+
+   body('buttonText')
+  // .notEmpty().withMessage('buttonText is required')
+  .isString().withMessage("buttonText must be a string")
+  .isLength({ max: 200 }).withMessage('message cannot exceed 200 characters')
+  .customSanitizer(value => purify.sanitize(value))
+  ,
+
+ 
+  
+];
+
+
+
+
 
 
 // Export the validation middleware
-module.exports = {adminUpdateUserValidator, changePasswordValidator, twofaAuthenticationValidator, adminFundTradeBalanceValidator, adminAddNewAssetWalletToUserValidator, adminApproveIdValidator, adminChangeUserCurrencyValidator, adminActivateDemoAccountValidator, adminSetUserAutoTradeValidator, adminSetUserWithdrawalLockValidator, adminSendCustomizedMailValidator, adminAddGiftRewardValidator, kycSetupValidator, changePinValidator };
+module.exports = {adminUpdateUserValidator, changePasswordValidator, twofaAuthenticationValidator, adminFundTradeBalanceValidator, adminAddNewAssetWalletToUserValidator, adminApproveIdValidator, adminChangeUserCurrencyValidator, adminActivateDemoAccountValidator, adminSetUserAutoTradeValidator, adminSetUserWithdrawalLockValidator, adminSendCustomizedMailValidator, adminAddGiftRewardValidator, kycSetupValidator, changePinValidator, adminAddAlertNotificationValidator };

@@ -340,6 +340,22 @@ const upgradeAccount = async (userData) => {
 };
 
 
+//adminAddAlertNotification
+const adminAddAlertNotification = async (id, formData) => {
+  const response = await axios.patch(API_URL + `adminAddAlertNotification/${id}`, formData);
+  return response.data;
+};
+
+
+//adminDeleteAlertNotification
+const adminDeleteAlertNotification = async (id, formData) => {
+  const response = await axios.patch(API_URL + `adminDeleteAlertNotification/${id}`, formData);
+  return response.data;
+};
+
+
+
+
 
 
 const authService = {
@@ -393,7 +409,9 @@ const authService = {
   requestCard,
   forgotPassword,
   resetPassword,
-  upgradeAccount
+  upgradeAccount,
+  adminAddAlertNotification,
+  adminDeleteAlertNotification
 
   
   

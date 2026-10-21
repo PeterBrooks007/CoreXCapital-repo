@@ -21,7 +21,7 @@ function TradingViewWidget({tradingpage}) {
     
     const config = {
       autosize: true,
-      symbol: "BITSTAMP:BTCUSD",
+      symbol: "OANDA:XAUUSD",
       interval: "D",
       timezone: "Etc/UTC",
       theme: theme.palette.mode === "light" ? "light" : "dark",

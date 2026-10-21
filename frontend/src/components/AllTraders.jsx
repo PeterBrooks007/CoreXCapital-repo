@@ -33,13 +33,10 @@ const AllTraders = () => {
   const dispatch = useDispatch();
 
   const { isLoading, expertTraders } = useSelector(
-    (state) => state.expertTraders
+    (state) => state.expertTraders,
   );
 
-  const { singleUser, user } = useSelector(
-    (state) => state.auth
-  );
-
+  const { singleUser, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (expertTraders.length === 0) {
@@ -61,7 +58,7 @@ const AllTraders = () => {
             .includes(searchTerm.toLowerCase().trim()) ||
           expertTraders.email
             .toLowerCase()
-            .includes(searchTerm.toLowerCase().trim())
+            .includes(searchTerm.toLowerCase().trim()),
       )
     : [];
 
@@ -74,15 +71,14 @@ const AllTraders = () => {
   const [selectedTrader, setSelectedTrader] = useState(null);
 
   const handleCopyTrader = (expertTraderID) => {
-    if(user?.role === "admin") {
-    const formData = {
+    if (user?.role === "admin") {
+      const formData = {
         expertTraderID,
-        UserId: singleUser?._id
-      }
+        UserId: singleUser?._id,
+      };
 
       dispatch(adminAddExpertTraderToUser(formData));
-    } else
-    dispatch(myExpertTrader({ expertTraderID }));
+    } else dispatch(myExpertTrader({ expertTraderID }));
     // console.log(expertTraderID)
   };
 
@@ -175,7 +171,7 @@ const AllTraders = () => {
               justifyContent={"center"}
               sx={{
                 "& > div": {
-                  width: { xs: "47%", md: "230px" },
+                  width: { xs: "100%", md: "300px" },
                   height: "330px",
                   backgroundColor: "transparent",
                 },
@@ -183,94 +179,268 @@ const AllTraders = () => {
             >
               {expertTraders &&
                 filteredAllCoins.map((experttrader, index) => (
-                  <>
-                    <Stack key={experttrader?._id} mb={{ xs: 0, md: 5 }}>
-                      <Box position={"relative"}>
+                  <Box
+                    key={experttrader?._id}
+                    mb={3}
+                    p={2.5}
+                    sx={{
+                      width: "100%",
+                      maxWidth: "350px",
+                      boxSizing: "border-box",
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #dce3ed",
+                      borderRadius: "13px",
+                      color: "#111827",
+                    }}
+                  >
+                    {/* Trader profile */}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1.5}
+                      mb={2}
+                    >
+                      <Box
+                        sx={{
+                          width: 54,
+                          height: 54,
+                          flexShrink: 0,
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        <img
+                          src={experttrader?.photo}
+                          alt={`${experttrader?.firstname} ${experttrader?.lastname}`}
+                          onLoad={() => setLoading(false)}
+                          onError={() => setLoading(false)}
+                          width="100%"
+                          height="100%"
+                          style={{
+                            objectFit: "cover",
+                            display: "block",
+                          }}
+                        />
+                      </Box>
+
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Stack
-                          direction={"row"}
-                          justifyContent={"space-between"}
-                          alignItems={"flex-start"}
-                          position={"absolute"}
-                          top={0}
-                          width={"100%"}
-                          height={"220px"}
-                          p={0.5}
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.5}
                         >
+                          <Typography
+                            fontWeight={700}
+                            fontSize={15}
+                            noWrap
+                            color="#8490a5"
+                          >
+                            {experttrader?.firstname} {experttrader?.lastname}
+                          </Typography>
+
+                          {/* Verified icon */}
                           <Box
                             sx={{
-                              backgroundColor: "rgba(0,0,0, 0.3)",
-                              p: "1px 8px",
-                              color: "white"
+                              display: "flex",
+                              alignItems: "center",
+                              color: "#10b981",
                             }}
-                            borderRadius={"50%"}
                           >
-                           {index + 1}
-                          </Box>
-                          {loading ? (
-                            ""
-                          ) : (
-                            <Button
-                              variant="contained"
-                              sx={{ backgroundColor: "green", color: "white" }}
-                              onClick={
-                                () => {
-                                  setSelectedTrader(experttrader);
-                                  handleOpen();
-                                }
-                                // handleCopyTrader(experttrader?._id)
-                              }
+                            <svg
+                              width="15"
+                              height="15"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
                             >
-                              View
-                            </Button>
-                          )}
+                              <path d="M12 2l2.4 2 3.1-.1 1.1 2.9 2.5 1.8-.8 3 .8 3-2.5 1.8-1.1 2.9-3.1-.1L12 22l-2.4-2-3.1.1-1.1-2.9-2.5-1.8.8-3-.8-3 2.5-1.8 1.1-2.9 3.1.1L12 2z" />
+                              <path
+                                d="M8 12l2.5 2.5L16 9"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </Box>
                         </Stack>
-                        {/* {loading && (
-                        <Skeleton
-                          variant="rectangle"
-                          height={"100%"}
-                          sx={{ borderRadius: "10px" }}
-                        />
-                      )} */}
-                        <Box height={{ xs: "180px", sm: "370px", md: "250px" }}>
-                          <img
-                            src={experttrader?.photo}
-                            alt=""
-                            onLoad={() => setLoading(false)}
-                            onError={() => setLoading(false)}
-                            width={"100%"}
-                            height={"100%"}
-                            style={{
-                              borderRadius: "10px",
-                              objectFit: "cover",
-                              objectPosition: "top",
-                              border: "1px solid grey"
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                      <Typography
-                        sx={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
-                      >
-                        {experttrader?.firstname} {experttrader?.lastname}
-                      </Typography>
-                      <Typography fontWeight={"bold"}>
-                        {shortenText(
-                          experttrader?.email,
-                          size.width < 600 ? 16 : 22
-                        )}
-                      </Typography>
-                      <Stack direction={"row"} spacing={1}>
-                        <Typography fontWeight={"bold"}>Win rate:</Typography>
-                        <Typography> {experttrader?.winRate}</Typography>
-                      </Stack>
-                      <Stack direction={"row"} spacing={1}>
-                        <Typography fontWeight={"bold"}>
-                          Profit Share
+
+                        <Typography fontSize={12} color="#8490a5" noWrap>
+                          {experttrader?.email}
                         </Typography>
-                        <Typography>{experttrader?.profitShare}</Typography>
-                      </Stack>
+
+                        <Typography fontSize={12} color="#f59e0b">
+                          ★★★★★
+                        </Typography>
+                      </Box>
+
+                      {/* Trader ranking */}
+                      <Typography
+                        fontSize={11}
+                        color="#8490a5"
+                        sx={{ alignSelf: "flex-start" }}
+                      >
+                        #{index + 1}
+                      </Typography>
                     </Stack>
-                  </>
+
+                    {/* Monthly return and chart */}
+                    <Box mb={2}>
+                      <Typography fontSize={12} color="#8490a5" mb={0.3}>
+                        Monthly Return
+                      </Typography>
+
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        spacing={1}
+                      >
+                        <Typography
+                          fontSize={23}
+                          fontWeight={800}
+                          color="#10b981"
+                          lineHeight={1.2}
+                        >
+                         +{experttrader?.profitShare ?? "0%"}
+                        </Typography>
+
+                        {/* Decorative performance chart */}
+                        <Stack
+                          direction="row"
+                          alignItems="flex-end"
+                          spacing="3px"
+                          height="35px"
+                          sx={{ flexShrink: 0 }}
+                        >
+                          {[
+                            12, 22, 16, 27, 19, 30, 14, 24, 18, 29, 13, 21, 16,
+                            26, 11, 19,
+                          ].map((height, i) => (
+                            <Box
+                              key={i}
+                              sx={{
+                                width: 4,
+                                height: `${height}px`,
+                                backgroundColor:
+                                  i % 4 === 0 ? "#f43f5e" : "#10c987",
+                              }}
+                            />
+                          ))}
+                        </Stack>
+                      </Stack>
+                    </Box>
+
+                    {/* Trader statistics */}
+                    <Box
+                      sx={{
+                        borderTop: "1px solid #edf0f5",
+                        pt: 1.8,
+                        pb: 1.8,
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={1}
+                      >
+                        <Box>
+                          <Typography
+                            fontSize={13}
+                            fontWeight={700}
+                            color="#10b981"
+                          >
+                            {experttrader?.winRate ?? "0%"}
+                          </Typography>
+                          <Typography fontSize={11} color="#8490a5">
+                            Win ratio
+                          </Typography>
+                        </Box>
+
+                        <Box textAlign="center">
+                          <Typography
+                            fontSize={13}
+                            fontWeight={700}
+                            color="#8490a5"
+                          >
+                            {/* {experttrader?.copiers ?? "0"} */}
+                             {1393 + index * 127}
+                          </Typography>
+                          <Typography fontSize={11} color="#8490a5">
+                            Copiers
+                          </Typography>
+                        </Box>
+
+                        <Box textAlign="right">
+                          <Typography
+                            fontSize={13}
+                            fontWeight={700}
+                            color="#f59e0b"
+                          >
+                            {/* {experttrader?.risk ?? "5/10"} */}
+                            {experttrader?.risk ?? `${3 + (index % 6)}/10`}
+                          </Typography>
+                          <Typography fontSize={11} color="#8490a5">
+                            Risk
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Box>
+
+                    {/* Actions */}
+                    <Stack direction="row" spacing={1.2}>
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => {
+                          setSelectedTrader(experttrader);
+                          handleOpen();
+                        }}
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: 700,
+                          fontSize: 12,
+                          // color: "#111827",
+                          borderColor: "#dce3ed",
+                          borderRadius: "9px",
+                          py: 1.1,
+                          "&:hover": {
+                            borderColor: "#10b981",
+                            backgroundColor: "#f0fdf8",
+                          },
+                        }}
+                      >
+                        Portfolio
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        disabled={loading}
+                        onClick={() => {
+                          setSelectedTrader(experttrader);
+                          handleOpen();
+                        }}
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: 700,
+                          fontSize: 12,
+                          color: "#ffffff",
+                          backgroundColor: "#10b995",
+                          boxShadow: "none",
+                          borderRadius: "9px",
+                          py: 1.1,
+                          "&:hover": {
+                            backgroundColor: "#059b7d",
+                            boxShadow: "none",
+                          },
+                        }}
+                      >
+                        Copy Trades
+                      </Button>
+                    </Stack>
+                  </Box>
                 ))}
             </Box>
           )}
@@ -290,28 +460,38 @@ const AllTraders = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "100%",
-            maxWidth: {xs: "95%", sm: "60%" , md: 450},
+            maxWidth: { xs: "95%", sm: "60%", md: 450 },
             maxHeight: "100%",
             overflow: "auto",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
-            borderRadius:"10px",
+            borderRadius: "10px",
             p: 2,
-           
           }}
         >
           <Stack>
-            <Box position={"relative"} border={"1px solid grey"} borderRadius={"10px"} overflow={"hidden"}>
-              <Stack position={"absolute"} bottom={0} left={0} backgroundColor="black" p={"4px 8px"} >
-              <Typography
-              sx={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
-              variant="h5"
-              fontWeight={700}
-              color={"white"}
+            <Box
+              position={"relative"}
+              border={"1px solid grey"}
+              borderRadius={"10px"}
+              overflow={"hidden"}
             >
-              {selectedTrader?.firstname} {selectedTrader?.lastname}
-            </Typography>
+              <Stack
+                position={"absolute"}
+                bottom={0}
+                left={0}
+                backgroundColor="black"
+                p={"4px 8px"}
+              >
+                <Typography
+                  sx={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+                  variant="h5"
+                  fontWeight={700}
+                  color={"white"}
+                >
+                  {selectedTrader?.firstname} {selectedTrader?.lastname}
+                </Typography>
               </Stack>
               <Stack
                 direction={"row"}
@@ -334,17 +514,17 @@ const AllTraders = () => {
                       handleClose();
                     }}
                   >
-                    {user?.role === "admin" ? "Add Trader to User" : "Copy Trader"} 
-                    
+                    {user?.role === "admin"
+                      ? "Add Trader to User"
+                      : "Copy Trader"}
                   </Button>
-                )
-                }
+                )}
                 <Box
                   sx={{
                     backgroundColor: "grey",
                     p: "3px 4px 0px 4px",
                     cursor: "pointer",
-                    color: "white"
+                    color: "white",
                   }}
                   borderRadius={"50%"}
                   onClick={handleClose}
@@ -359,7 +539,7 @@ const AllTraders = () => {
                           sx={{ borderRadius: "10px" }}
                         />
                       )} */}
-              <Box height={{xs:"320px", sm: "450px", md: "420px"}}>
+              <Box height={{ xs: "320px", sm: "450px", md: "420px" }}>
                 <img
                   src={selectedTrader?.photo}
                   alt=""
@@ -375,21 +555,19 @@ const AllTraders = () => {
                 />
               </Box>
             </Box>
-            
+
             <Divider />
-            
+
             {/* <Stack mb={1}>
               <Typography variant="h6" sx={{color: "springgreen", fontWeight: 600}}>About this trader</Typography>
             </Stack> */}
 
             <Divider />
-           <Stack spacing={1}>
-            <Typography fontWeight={"bold"} mt={1}>
-             
-              Email: {selectedTrader?.email}
-            </Typography>
+            <Stack spacing={1}>
+              <Typography fontWeight={"bold"} mt={1}>
+                Email: {selectedTrader?.email}
+              </Typography>
 
-            
               <Stack direction={"row"} spacing={1}>
                 <Typography fontWeight={"bold"}>Win rate:</Typography>
                 <Typography> {selectedTrader?.winRate}</Typography>
@@ -400,13 +578,12 @@ const AllTraders = () => {
               </Stack>
               <Divider />
               <Stack direction={"row"} spacing={1}>
-                <Typography fontWeight={"bold"}>Bio: {selectedTrader?.comment}</Typography>
-               
+                <Typography fontWeight={"bold"}>
+                  Bio: {selectedTrader?.comment}
+                </Typography>
               </Stack>
-            
             </Stack>
           </Stack>
-          
         </Box>
       </Modal>
     </>

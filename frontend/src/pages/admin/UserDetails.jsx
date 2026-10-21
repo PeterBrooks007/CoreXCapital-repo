@@ -43,6 +43,7 @@ import totalDepositSvgIcon from "../../assets/svgIcons/totalDepositSvgIcon.svg";
 import walletSvgIcon from "../../assets/svgIcons/walletSvgIcon.svg";
 import StyledBadge from "../../components/StyledBadge";
 import { timeAgo } from "../../utils";
+import ReferralDrawer from "./adminComponents/drawers/ReferralDrawer";
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
   width: 150, // Default width for xs breakpoint
@@ -81,12 +82,12 @@ const UserDetails = () => {
   }, [dispatch, id]);
 
   const { isLoading: coinPriceLoading, allCoins } = useSelector(
-    (state) => state.coinPrice
+    (state) => state.coinPrice,
   );
 
   const combinedAssets = singleUser?.assets?.map((asset) => {
     const priceData = allCoins?.find(
-      (price) => price?.symbol === asset?.symbol?.toUpperCase()
+      (price) => price?.symbol === asset?.symbol?.toUpperCase(),
     );
 
     if (priceData) {
@@ -110,7 +111,7 @@ const UserDetails = () => {
   const totalWalletBalanceManual = Array.isArray(singleUser?.assets)
     ? singleUser?.assets.reduce(
         (total, asset) => total + (asset.ManualFiatbalance || 0),
-        0
+        0,
       )
     : 0;
 
@@ -158,6 +159,17 @@ const UserDetails = () => {
 
     // console.log(formData);
     dispatch(adminLockAccount({ id, formData }));
+  };
+
+  // Referral Drawer
+  const [openReferralDrawer, setReferralDrawer] = useState(false);
+
+  const handleOpenReferralDrawer = () => {
+    setReferralDrawer(true);
+  };
+
+  const handleCloseReferralDrawer = () => {
+    setReferralDrawer(false);
   };
 
   return (
@@ -415,8 +427,8 @@ const UserDetails = () => {
                         singleUser?.isIdVerified === "VERIFIED"
                           ? "success"
                           : singleUser?.isIdVerified === "PENDING"
-                          ? "warning"
-                          : "error"
+                            ? "warning"
+                            : "error"
                       }
                     />
                   </Stack>
@@ -767,7 +779,7 @@ const UserDetails = () => {
                   <Stack
                     direction={"row"}
                     justifyContent={"space-between"}
-                    //   onClick={handleOpenReferralDrawer}
+                    onClick={handleOpenReferralDrawer}
                     sx={{ cursor: "pointer" }}
                   >
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
@@ -866,6 +878,12 @@ const UserDetails = () => {
           </Box>
         </Box>
       )}
+
+      <ReferralDrawer
+        open={openReferralDrawer}
+        handleClose={handleCloseReferralDrawer}
+        handleOpen={handleOpenReferralDrawer}
+      />
     </>
   );
 };

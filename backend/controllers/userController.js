@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const User = require("../models/userModel");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
@@ -55,7 +56,7 @@ const generateToken = (id) => {
 
 //Register User
 const registerUser = asyncHandler(async (req, res, next) => {
-  const { firstname, lastname, email, password } = req.body;
+  const { firstname, lastname, email, password, referralId } = req.body;
 
   //validation
   if (!firstname || !lastname || !email || !password) {
@@ -65,6 +66,24 @@ const registerUser = asyncHandler(async (req, res, next) => {
   if (password.length < 6) {
     res.status(400);
     throw new Error("Password must be up to 6 characters");
+  }
+
+  // Validate referral ID if provided
+  let referrer = null;
+
+  if (referralId) {
+    // Prevent invalid MongoDB ObjectId errors
+    if (!mongoose.Types.ObjectId.isValid(referralId)) {
+      res.status(400);
+      throw new Error("Invalid referral ID");
+    }
+
+    referrer = await User.findById(referralId);
+
+    if (!referrer) {
+      res.status(400);
+      throw new Error("Referral user does not exist");
+    }
   }
 
   //check if user exist
@@ -153,6 +172,13 @@ const registerUser = asyncHandler(async (req, res, next) => {
         },
       ],
     });
+
+    // Save the new user's ID to the referrer's myReferrals array
+    if (referrer) {
+      await User.findByIdAndUpdate(referrer._id, {
+        $addToSet: { myReferrals: new_user._id },
+      });
+    }
 
     // generate an otp and send to email
     req.userId = new_user._id;
@@ -726,7 +752,12 @@ const logout = asyncHandler(async (req, res) => {
 
 //Get User
 const getUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id)
+    .select("-password")
+    .populate(
+      "myReferrals",
+      "firstname lastname email address photo createdAt",
+    );
   if (user) {
     res.status(200).json(user);
   } else {
@@ -1075,7 +1106,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
 //getSingleUser
 const getSingleUser = asyncHandler(async (req, res) => {
   const id = req.params.id;
-  const user = await User.findById(id);
+  const user = await User.findById(id).populate(
+    "myReferrals",
+    "firstname lastname email address photo createdAt",
+  );
   if (user) {
     res.status(200).json(user);
   } else {

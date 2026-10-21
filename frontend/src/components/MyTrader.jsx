@@ -143,7 +143,7 @@ const MyTrader = () => {
               <Typography variant="h5">No Trader Available</Typography>
             </Stack>
           ) : (
-            <>
+            <> 
               <Box
                 mt={2}
                 display={"flex"}

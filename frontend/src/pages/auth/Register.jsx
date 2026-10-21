@@ -17,7 +17,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@emotion/react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import TermsDialog from "../../components/dialogs/TermsDialog.jsx";
 import { useContext, useEffect, useState } from "react";
 import PolicyDialog from "../../components/dialogs/PolicyDialog.jsx";
@@ -48,6 +52,12 @@ const Register = () => {
   const navigate = useNavigate();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+
+  const [searchParams] = useSearchParams();
+
+  const refer = searchParams.get("refer");
+
+  // console.log("refer", refer);
 
   const savedColorMode = localStorage.getItem("colorMode") || null;
 
@@ -128,7 +138,7 @@ const Register = () => {
 
   const [formData, setFormData] = useState(initialState);
   const { isLoading, isLoggedIn, isSuccess } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const userSchema = yup.object().shape({
@@ -174,6 +184,7 @@ const Register = () => {
       lastname: values.lastname,
       email: values.email.toLowerCase().trim(),
       password: values.password,
+      referralId: refer ? refer : null,
     };
     await dispatch(register(userData));
     // console.log(userData);
@@ -192,8 +203,7 @@ const Register = () => {
         height="100vh"
         justifyContent="space-between"
         position={"relative"}
-        sx={{overflowX: "hidden"}}
-
+        sx={{ overflowX: "hidden" }}
       >
         <Box
           position={"absolute"}

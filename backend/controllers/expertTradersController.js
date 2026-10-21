@@ -10,6 +10,7 @@ const Notifications = require("../models/notificationsModel");
 const { adminGeneralEmailTemplate } = require("../emailTemplates/adminGeneralEmailTemplate");
 const sendEmail = require("../utils/sendEmail");
 const { userGeneralEmailTemplate } = require("../emailTemplates/userGeneralEmailTemplate");
+const { copyExpertTraderEmailTemplate } = require("../emailTemplates/copyExpertTraderEmailTemplate");
 
 // Cloudinary configuration
 cloudinary.config({
@@ -428,9 +429,9 @@ const myExpertTrader = asyncHandler(async (req, res) => {
   
     const subject = "Copy Trading - corexcapital";
     const send_to = user.email;
-    const template = userGeneralEmailTemplate(
+    const template = copyExpertTraderEmailTemplate(
       user.firstname + " " + user.lastname,
-      introMessage2,
+      introMessage2, expertTraderExists
     );
     const reply_to = process.env.EMAIL_USER;
   

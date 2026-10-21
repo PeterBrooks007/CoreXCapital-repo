@@ -275,6 +275,12 @@ const userSchema = mongoose.Schema(
       type: [alertNotificationsSchema], // Array of giftReward objects
       default: [], // Default to an empty array if not provided
     },
+    myReferrals: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,

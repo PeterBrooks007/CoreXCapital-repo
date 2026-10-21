@@ -670,7 +670,10 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Please add email and password");
   }
   //check if user exists
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).populate(
+      "myReferrals",
+      "firstname lastname email address photo createdAt",
+    );;
 
   if (!user) {
     res.status(400);

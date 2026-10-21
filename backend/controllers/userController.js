@@ -670,10 +670,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Please add email and password");
   }
   //check if user exists
-  const user = await User.findOne({ email }).populate(
-      "myReferrals",
-      "firstname lastname email address photo createdAt",
-    );;
+  const user = await User.findOne({ email });
 
   if (!user) {
     res.status(400);
@@ -725,7 +722,13 @@ const loginUser = asyncHandler(async (req, res) => {
     user.pinRequired = false;
     await user.save();
 
-    const newUser = await User.findOne({ email }).select("-password");
+    const newUser = await User.findOne({ email })
+      .select("-password")
+      .populate(
+        "myReferrals",
+        "firstname lastname email photo address phone createdAt",
+      );
+
     res.cookie("token", token, {
       path: "/",
       httpOnly: true,

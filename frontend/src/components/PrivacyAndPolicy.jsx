@@ -211,8 +211,18 @@ function PrivacyAndPolicy() {
           When you add up an expert for copy trades and start making good profits, there&apos;s a profit target set for everyone copying trades and whenever the profit target is met you would pay 20% of the profit share to your expert. Profit target is the estimated amount of profit the management hopes to achieve during an accounting period and is forecasted and updated regularly as per the business&apos;s progress.
           </Typography>
 
+
+           <Typography variant="h5" color="primary" gutterBottom>
+            13.   Equity
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Please note that trading on your account may be paused if your available equity falls below the level required under the applicable account terms. If additional equity is required, you will be notified of the amount needed and the steps available to address the shortfall. <br /> <br />
+
+            Please note, prior to this, you won’t be able to make any withdrawal until equity is increase to finish your trade.
+          </Typography>
+
           <Typography variant="h5" color="primary" gutterBottom>
-            13. Contact Us
+            14. Contact Us
           </Typography>
           <Typography variant="body1" paragraph>
             If you have any questions about this privacy policy or our data

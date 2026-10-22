@@ -36,7 +36,7 @@ const copyExpertTraderEmailTemplate = (
           },
           {
             Parameter: "Risk Score",
-            Details: expertTraderExists.riskScore || "5/10",
+            Details: expertTraderExists.riskScore || "3/10",
           },
           {
             Parameter: "Copy Fee",
